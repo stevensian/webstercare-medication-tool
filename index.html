@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="theme-color" content="#ffffff" />
+  <title>Webstercare Medication Measurement Tool</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+  <style>
+    :root {
+      --bg: #f5f7fa;
+      --card: #ffffff;
+      --text: #17202a;
+      --muted: #667085;
+      --line: #d0d5dd;
+      --primary: #1d4ed8;
+      --primary-dark: #1e40af;
+      --success: #137a4b;
+      --danger: #b42318;
+      --chip: #eef2ff;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .app {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 16px 14px 40px;
+    }
+
+    h1 {
+      font-size: 24px;
+      line-height: 1.2;
+      margin: 8px 0 18px;
+      text-align: center;
+    }
+
+    h2 {
+      font-size: 19px;
+      margin: 0 0 12px;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: 16px;
+      box-shadow: 0 2px 12px rgba(0,0,0,.06);
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+
+    .hidden { display: none !important; }
+
+    label {
+      display: block;
+      font-size: 14px;
+      font-weight: 650;
+      margin-bottom: 6px;
+    }
+
+    input, select {
+      width: 100%;
+      min-height: 46px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 17px;
+      background: #fff;
+      color: var(--text);
+      margin-bottom: 12px;
+    }
+
+    input:focus, select:focus {
+      outline: 3px solid rgba(29, 78, 216, .16);
+      border-color: var(--primary);
+    }
+
+    button {
+      min-height: 46px;
+      border: none;
+      border-radius: 11px;
+      padding: 10px 14px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .primary {
+      background: var(--primary);
+      color: #fff;
+      width: 100%;
+    }
+
+    .primary:active { background: var(--primary-dark); }
+
+    .secondary {
+      background: #eef2f6;
+      color: var(--text);
+    }
+
+    .success {
+      background: var(--success);
+      color: #fff;
+    }
+
+    .danger {
+      background: #fee4e2;
+      color: var(--danger);
+    }
+
+    .button-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .button-row > button {
+      flex: 1 1 140px;
+    }
+
+    .choice-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .rows-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    .choice {
+      background: #eef2f6;
+      color: var(--text);
+      border: 2px solid transparent;
+    }
+
+    .choice.selected {
+      background: var(--chip);
+      color: var(--primary-dark);
+      border-color: var(--primary);
+    }
+
+    .summary {
+      display: grid;
+      gap: 8px;
+    }
+
+    .summary-item {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      border-bottom: 1px solid #eef2f6;
+      padding: 8px 0;
+    }
+
+    .summary-item:last-child { border-bottom: none; }
+
+    .summary-label {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .summary-value {
+      font-weight: 700;
+      text-align: right;
+      word-break: break-word;
+    }
+
+    .camera-wrap {
+      position: relative;
+      overflow: hidden;
+      border-radius: 14px;
+      background: #111;
+      margin-bottom: 12px;
+    }
+
+    video, canvas.preview {
+      width: 100%;
+      display: block;
+      border-radius: 14px;
+    }
+
+    .scan-guide {
+      position: absolute;
+      left: 8%;
+      right: 8%;
+      top: 34%;
+      height: 32%;
+      border: 3px solid rgba(255,255,255,.9);
+      border-radius: 12px;
+      pointer-events: none;
+      box-shadow: 0 0 0 9999px rgba(0,0,0,.18);
+    }
+
+    .status {
+      font-size: 14px;
+      color: var(--muted);
+      margin: 6px 0 12px;
+      min-height: 20px;
+    }
+
+    .status.ok { color: var(--success); font-weight: 650; }
+    .status.err { color: var(--danger); font-weight: 650; }
+
+    .ocr-progress {
+      height: 8px;
+      background: #e5e7eb;
+      border-radius: 99px;
+      overflow: hidden;
+      margin: 8px 0 12px;
+    }
+
+    .ocr-progress > div {
+      height: 100%;
+      width: 0%;
+      background: var(--primary);
+      transition: width .2s ease;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      min-width: 980px;
+      font-size: 13px;
+      background: #fff;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 9px 10px;
+      border-bottom: 1px solid #eaecf0;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f8fafc;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    .small {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .footer-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .footer-actions button {
+      flex: 1 1 160px;
+    }
+
+    .required::after {
+      content: " *";
+      color: var(--danger);
+    }
+
+    @media (max-width: 420px) {
+      h1 { font-size: 21px; }
+      .rows-grid { grid-template-columns: repeat(4, 1fr); }
+      button { font-size: 15px; }
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <h1>Webstercare Medication Measurement Tool</h1>
+
+  <section class="card" id="userCard">
+    <h2>Operator</h2>
+    <label class="required" for="operator">Your name</label>
+    <select id="operator">
+      <option value="">Select your name</option>
+      <option>Ian</option>
+      <option>Anna</option>
+      <option>Vimlesh</option>
+      <option>Brett</option>
+      <option>Sal</option>
+    </select>
+    <button class="primary" id="startBtn">Start New Entry</button>
+  </section>
+
+  <section class="card hidden" id="identifyCard">
+    <h2>1. Identify Medication</h2>
+    <p class="small">Take a clear photo of the medication label. The app will try to identify the Drug Name and Strength using OCR.</p>
+
+    <div class="camera-wrap hidden" id="ocrCameraWrap">
+      <video id="ocrVideo" playsinline autoplay muted></video>
+    </div>
+
+    <button class="primary" id="openOcrCameraBtn">Open Camera</button>
+
+    <div class="button-row hidden" id="ocrCameraButtons" style="margin-top:10px;">
+      <button class="success" id="captureOcrBtn">Take Photo</button>
+      <button class="secondary" id="cancelOcrCameraBtn">Cancel Camera</button>
+    </div>
+
+    <canvas id="ocrCanvas" class="preview hidden"></canvas>
+    <div class="ocr-progress hidden" id="ocrProgress"><div id="ocrProgressBar"></div></div>
+    <div class="status" id="ocrStatus"></div>
+
+    <div id="ocrFields" class="hidden">
+      <label for="drugName">Drug Name</label>
+      <input id="drugName" type="text" autocomplete="off" />
+
+      <label for="strength">Strength</label>
+      <input id="strength" type="text" autocomplete="off" placeholder="e.g. 20 mg" />
+
+      <p><strong>Is this correct?</strong> You can edit either field before pressing Yes.</p>
+      <div class="button-row">
+        <button class="success" id="confirmDrugBtn">Yes, Correct</button>
+        <button class="secondary" id="retakeDrugBtn">Retake Photo</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="card hidden" id="barcodeCard">
+    <h2>Medication Details</h2>
+    <div class="summary" id="topSummary"></div>
+
+    <hr style="border:0;border-top:1px solid #eaecf0;margin:14px 0;" />
+
+    <h2>2. Capture EAN-13 Barcode</h2>
+    <p class="small">Point the camera at the EAN-13 barcode. The app will capture the barcode as soon as it can be read reliably.</p>
+
+    <div class="camera-wrap hidden" id="barcodeCameraWrap">
+      <video id="barcodeVideo" playsinline autoplay muted></video>
+      <div class="scan-guide"></div>
+    </div>
+
+    <button class="primary" id="openBarcodeCameraBtn">Open Barcode Camera</button>
+
+    <div class="button-row hidden" id="barcodeButtons" style="margin-top:10px;">
+      <button class="secondary" id="manualBarcodeBtn">Enter Barcode Manually</button>
+      <button class="secondary" id="cancelBarcodeBtn">Cancel Camera</button>
+    </div>
+
+    <div class="status" id="barcodeStatus"></div>
+
+    <div id="manualBarcodeWrap" class="hidden">
+      <label for="manualBarcode">EAN-13 Barcode</label>
+      <input id="manualBarcode" inputmode="numeric" maxlength="13" placeholder="13 digits" />
+      <button class="primary" id="saveManualBarcodeBtn">Use This Barcode</button>
+    </div>
+  </section>
+
+  <section class="card hidden" id="packagingCard">
+    <h2>3. Packaging</h2>
+    <div class="summary" id="packagingSummary"></div>
+
+    <p><strong>Packaging?</strong></p>
+    <div class="choice-grid">
+      <button class="choice" data-packaging="Bottle">Bottle</button>
+      <button class="choice" data-packaging="Blister">Blister</button>
+    </div>
+
+    <div class="hidden" id="blisterOptions" style="margin-top:16px;">
+      <p><strong>Material?</strong></p>
+      <div class="choice-grid">
+        <button class="choice" data-material="Plastic-Foil">Plastic-Foil</button>
+        <button class="choice" data-material="Foil-Foil">Foil-Foil</button>
+      </div>
+
+      <p style="margin-top:16px;"><strong>Rows?</strong></p>
+      <div class="rows-grid">
+        <button class="choice" data-rows="1">1</button>
+        <button class="choice" data-rows="2">2</button>
+        <button class="choice" data-rows="3">3</button>
+        <button class="choice" data-rows="4">4</button>
+        <button class="choice" data-rows="5">5</button>
+        <button class="choice" data-rows="6">6</button>
+        <button class="choice" data-rows="7">7</button>
+        <button class="choice" data-rows="8">8</button>
+      </div>
+    </div>
+
+    <button class="primary hidden" id="saveEntryBtn" style="margin-top:18px;">Save Entry</button>
+  </section>
+
+  <section class="card hidden" id="savedCard">
+    <h2>Entry Saved</h2>
+    <div class="summary" id="savedSummary"></div>
+    <button class="primary" id="newEntryBtn" style="margin-top:14px;">Start Another Entry</button>
+  </section>
+
+  <section class="card">
+    <h2>Stored Measurements</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+        <tr>
+          <th>Operator</th>
+          <th>Drug Name</th>
+          <th>Strength</th>
+          <th>EAN-13 Barcode</th>
+          <th>Packaging</th>
+          <th>Material</th>
+          <th>Rows</th>
+          <th>Capture Date</th>
+          <th>Finish Time</th>
+        </tr>
+        </thead>
+        <tbody id="recordsBody"></tbody>
+      </table>
+    </div>
+    <div class="footer-actions">
+      <button class="secondary" id="exportCsvBtn">Export CSV</button>
+      <button class="danger" id="clearDataBtn">Clear Stored Data</button>
+    </div>
+    <p class="small">Data is stored locally in this browser on this device. &nbsp; App version 2.0</p>
+  </section>
+</div>
+
+<script src="./app.js?v=2"></script>
+</body>
+</html>
