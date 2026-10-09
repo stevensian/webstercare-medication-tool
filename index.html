@@ -10,277 +10,23 @@
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="apple-touch-icon" href="icon-192.png" />
   <style>
-    :root {
-      --bg: #f5f7fa;
-      --card: #ffffff;
-      --text: #17202a;
-      --muted: #667085;
-      --line: #d0d5dd;
-      --primary: #1d4ed8;
-      --primary-dark: #1e40af;
-      --success: #137a4b;
-      --danger: #b42318;
-      --chip: #eef2ff;
-    }
-
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-    }
-
-    .app {
-      max-width: 760px;
-      margin: 0 auto;
-      padding: 16px 14px 40px;
-    }
-
-    h1 {
-      font-size: 24px;
-      line-height: 1.2;
-      margin: 8px 0 18px;
-      text-align: center;
-    }
-
-    h2 {
-      font-size: 19px;
-      margin: 0 0 12px;
-    }
-
-    .card {
-      background: var(--card);
-      border-radius: 16px;
-      box-shadow: 0 2px 12px rgba(0,0,0,.06);
-      padding: 16px;
-      margin-bottom: 14px;
-    }
-
-    .hidden { display: none !important; }
-
-    label {
-      display: block;
-      font-size: 14px;
-      font-weight: 650;
-      margin-bottom: 6px;
-    }
-
-    input, select {
-      width: 100%;
-      min-height: 46px;
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      padding: 10px 12px;
-      font-size: 17px;
-      background: #fff;
-      color: var(--text);
-      margin-bottom: 12px;
-    }
-
-    input:focus, select:focus {
-      outline: 3px solid rgba(29, 78, 216, .16);
-      border-color: var(--primary);
-    }
-
-    button {
-      min-height: 46px;
-      border: none;
-      border-radius: 11px;
-      padding: 10px 14px;
-      font-size: 16px;
-      font-weight: 700;
-      cursor: pointer;
-    }
-
-    .primary {
-      background: var(--primary);
-      color: #fff;
-      width: 100%;
-    }
-
-    .primary:active { background: var(--primary-dark); }
-
-    .secondary {
-      background: #eef2f6;
-      color: var(--text);
-    }
-
-    .success {
-      background: var(--success);
-      color: #fff;
-    }
-
-    .danger {
-      background: #fee4e2;
-      color: var(--danger);
-    }
-
-    .button-row {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    .button-row > button {
-      flex: 1 1 140px;
-    }
-
-    .choice-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 10px;
-    }
-
-    .rows-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 8px;
-    }
-
-    .choice {
-      background: #eef2f6;
-      color: var(--text);
-      border: 2px solid transparent;
-    }
-
-    .choice.selected {
-      background: var(--chip);
-      color: var(--primary-dark);
-      border-color: var(--primary);
-    }
-
-    .summary {
-      display: grid;
-      gap: 8px;
-    }
-
-    .summary-item {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      border-bottom: 1px solid #eef2f6;
-      padding: 8px 0;
-    }
-
-    .summary-item:last-child { border-bottom: none; }
-
-    .summary-label {
-      color: var(--muted);
-      font-size: 14px;
-    }
-
-    .summary-value {
-      font-weight: 700;
-      text-align: right;
-      word-break: break-word;
-    }
-
-    .camera-wrap {
-      position: relative;
-      overflow: hidden;
-      border-radius: 14px;
-      background: #111;
-      margin-bottom: 12px;
-    }
-
-    video, canvas.preview {
-      width: 100%;
-      display: block;
-      border-radius: 14px;
-    }
-
-    .scan-guide {
-      position: absolute;
-      left: 8%;
-      right: 8%;
-      top: 34%;
-      height: 32%;
-      border: 3px solid rgba(255,255,255,.9);
-      border-radius: 12px;
-      pointer-events: none;
-      box-shadow: 0 0 0 9999px rgba(0,0,0,.18);
-    }
-
-    .status {
-      font-size: 14px;
-      color: var(--muted);
-      margin: 6px 0 12px;
-      min-height: 20px;
-    }
-
-    .status.ok { color: var(--success); font-weight: 650; }
-    .status.err { color: var(--danger); font-weight: 650; }
-
-    .ocr-progress {
-      height: 8px;
-      background: #e5e7eb;
-      border-radius: 99px;
-      overflow: hidden;
-      margin: 8px 0 12px;
-    }
-
-    .ocr-progress > div {
-      height: 100%;
-      width: 0%;
-      background: var(--primary);
-      transition: width .2s ease;
-    }
-
-    .table-wrap {
-      overflow-x: auto;
-      border: 1px solid var(--line);
-      border-radius: 12px;
-    }
-
-    table {
-      border-collapse: collapse;
-      width: 100%;
-      min-width: 980px;
-      font-size: 13px;
-      background: #fff;
-    }
-
-    th, td {
-      text-align: left;
-      padding: 9px 10px;
-      border-bottom: 1px solid #eaecf0;
-      vertical-align: top;
-    }
-
-    th {
-      background: #f8fafc;
-      position: sticky;
-      top: 0;
-      z-index: 1;
-    }
-
-    .small {
-      font-size: 12px;
-      color: var(--muted);
-    }
-
-    .footer-actions {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-top: 10px;
-    }
-
-    .footer-actions button {
-      flex: 1 1 160px;
-    }
-
-    .required::after {
-      content: " *";
-      color: var(--danger);
-    }
-
-    @media (max-width: 420px) {
-      h1 { font-size: 21px; }
-      .rows-grid { grid-template-columns: repeat(4, 1fr); }
-      button { font-size: 15px; }
-    }
+    :root{--bg:#f5f7fa;--card:#fff;--text:#17202a;--muted:#667085;--line:#d0d5dd;--primary:#1d4ed8;--primary-dark:#1e40af;--success:#137a4b;--danger:#b42318;--chip:#eef2ff}
+    *{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
+    .app{max-width:760px;margin:0 auto;padding:16px 14px 40px}h1{font-size:24px;line-height:1.2;margin:8px 0 18px;text-align:center}h2{font-size:19px;margin:0 0 12px}
+    .card{background:var(--card);border-radius:16px;box-shadow:0 2px 12px rgba(0,0,0,.06);padding:16px;margin-bottom:14px}.hidden{display:none!important}
+    label{display:block;font-size:14px;font-weight:650;margin-bottom:6px}input,select{width:100%;min-height:46px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:17px;background:#fff;color:var(--text);margin-bottom:12px}
+    button{min-height:46px;border:none;border-radius:11px;padding:10px 14px;font-size:16px;font-weight:700;cursor:pointer}.primary{background:var(--primary);color:#fff;width:100%}.primary:active{background:var(--primary-dark)}
+    .secondary{background:#eef2f6;color:var(--text)}.success{background:var(--success);color:#fff}.danger{background:#fee4e2;color:var(--danger)}
+    .button-row{display:flex;gap:10px;flex-wrap:wrap}.button-row>button{flex:1 1 140px}.choice-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.rows-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+    .choice{background:#eef2f6;color:var(--text);border:2px solid transparent}.choice.selected{background:var(--chip);color:var(--primary-dark);border-color:var(--primary)}
+    .summary{display:grid;gap:8px}.summary-item{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid #eef2f6;padding:8px 0}.summary-item:last-child{border-bottom:none}.summary-label{color:var(--muted);font-size:14px}.summary-value{font-weight:700;text-align:right;word-break:break-word}
+    .camera-wrap{position:relative;overflow:hidden;border-radius:14px;background:#111;margin-bottom:12px}video,canvas.preview{width:100%;display:block;border-radius:14px}
+    .scan-guide{position:absolute;left:8%;right:8%;top:34%;height:32%;border:3px solid rgba(255,255,255,.9);border-radius:12px;pointer-events:none;box-shadow:0 0 0 9999px rgba(0,0,0,.18)}
+    .status{font-size:14px;color:var(--muted);margin:6px 0 12px;min-height:20px}.status.ok{color:var(--success);font-weight:650}.status.err{color:var(--danger);font-weight:650}
+    .table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px}table{border-collapse:collapse;width:100%;min-width:980px;font-size:13px;background:#fff}th,td{text-align:left;padding:9px 10px;border-bottom:1px solid #eaecf0;vertical-align:top}th{background:#f8fafc;position:sticky;top:0;z-index:1}
+    .small{font-size:12px;color:var(--muted)}.footer-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.footer-actions button{flex:1 1 160px}.required::after{content:" *";color:var(--danger)}
+    .lookup-card{background:#f8fafc;border:1px solid #e4e7ec;border-radius:12px;padding:12px;margin-top:12px}
+    @media(max-width:420px){h1{font-size:21px}.rows-grid{grid-template-columns:repeat(4,1fr)}button{font-size:15px}}
   </style>
 </head>
 <body>
@@ -292,57 +38,14 @@
     <label class="required" for="operator">Your name</label>
     <select id="operator">
       <option value="">Select your name</option>
-      <option>Ian</option>
-      <option>Anna</option>
-      <option>Vimlesh</option>
-      <option>Brett</option>
-      <option>Sal</option>
+      <option>Ian</option><option>Anna</option><option>Vimlesh</option><option>Brett</option><option>Sal</option>
     </select>
     <button class="primary" id="startBtn">Start New Entry</button>
   </section>
 
-  <section class="card hidden" id="identifyCard">
-    <h2>1. Identify Medication</h2>
-    <p class="small">Take a clear photo of the medication label. The app will try to identify the Drug Name and Strength using OCR.</p>
-
-    <div class="camera-wrap hidden" id="ocrCameraWrap">
-      <video id="ocrVideo" playsinline autoplay muted></video>
-    </div>
-
-    <button class="primary" id="openOcrCameraBtn">Open Camera</button>
-
-    <div class="button-row hidden" id="ocrCameraButtons" style="margin-top:10px;">
-      <button class="success" id="captureOcrBtn">Take Photo</button>
-      <button class="secondary" id="cancelOcrCameraBtn">Cancel Camera</button>
-    </div>
-
-    <canvas id="ocrCanvas" class="preview hidden"></canvas>
-    <div class="ocr-progress hidden" id="ocrProgress"><div id="ocrProgressBar"></div></div>
-    <div class="status" id="ocrStatus"></div>
-
-    <div id="ocrFields" class="hidden">
-      <label for="drugName">Drug Name</label>
-      <input id="drugName" type="text" autocomplete="off" />
-
-      <label for="strength">Strength</label>
-      <input id="strength" type="text" autocomplete="off" placeholder="e.g. 20 mg" />
-
-      <p><strong>Is this correct?</strong> You can edit either field before pressing Yes.</p>
-      <div class="button-row">
-        <button class="success" id="confirmDrugBtn">Yes, Correct</button>
-        <button class="secondary" id="retakeDrugBtn">Retake Photo</button>
-      </div>
-    </div>
-  </section>
-
   <section class="card hidden" id="barcodeCard">
-    <h2>Medication Details</h2>
-    <div class="summary" id="topSummary"></div>
-
-    <hr style="border:0;border-top:1px solid #eaecf0;margin:14px 0;" />
-
-    <h2>2. Capture EAN-13 Barcode</h2>
-    <p class="small">Point the camera at the EAN-13 barcode. The app will capture the barcode as soon as it can be read reliably.</p>
+    <h2>1. Scan EAN-13 Barcode</h2>
+    <p class="small">Point the camera at the medication barcode. When a valid EAN-13 barcode is detected, the app will look it up in the medication table.</p>
 
     <div class="camera-wrap hidden" id="barcodeCameraWrap">
       <video id="barcodeVideo" playsinline autoplay muted></video>
@@ -361,12 +64,32 @@
     <div id="manualBarcodeWrap" class="hidden">
       <label for="manualBarcode">EAN-13 Barcode</label>
       <input id="manualBarcode" inputmode="numeric" maxlength="13" placeholder="13 digits" />
-      <button class="primary" id="saveManualBarcodeBtn">Use This Barcode</button>
+      <button class="primary" id="saveManualBarcodeBtn">Look Up Barcode</button>
+    </div>
+
+    <div id="lookupResult" class="lookup-card hidden"></div>
+  </section>
+
+  <section class="card hidden" id="confirmCard">
+    <h2>Medication Details</h2>
+    <div class="summary" id="medicationSummary"></div>
+
+    <p class="small">Confirm the medication details before continuing.</p>
+
+    <label for="drugName">Drug Name</label>
+    <input id="drugName" type="text" autocomplete="off" />
+
+    <label for="strength">Strength</label>
+    <input id="strength" type="text" autocomplete="off" />
+
+    <div class="button-row">
+      <button class="success" id="confirmDrugBtn">Yes, Correct</button>
+      <button class="secondary" id="rescanBtn">Scan Different Barcode</button>
     </div>
   </section>
 
   <section class="card hidden" id="packagingCard">
-    <h2>3. Packaging</h2>
+    <h2>2. Packaging</h2>
     <div class="summary" id="packagingSummary"></div>
 
     <p><strong>Packaging?</strong></p>
@@ -384,14 +107,10 @@
 
       <p style="margin-top:16px;"><strong>Rows?</strong></p>
       <div class="rows-grid">
-        <button class="choice" data-rows="1">1</button>
-        <button class="choice" data-rows="2">2</button>
-        <button class="choice" data-rows="3">3</button>
-        <button class="choice" data-rows="4">4</button>
-        <button class="choice" data-rows="5">5</button>
-        <button class="choice" data-rows="6">6</button>
-        <button class="choice" data-rows="7">7</button>
-        <button class="choice" data-rows="8">8</button>
+        <button class="choice" data-rows="1">1</button><button class="choice" data-rows="2">2</button>
+        <button class="choice" data-rows="3">3</button><button class="choice" data-rows="4">4</button>
+        <button class="choice" data-rows="5">5</button><button class="choice" data-rows="6">6</button>
+        <button class="choice" data-rows="7">7</button><button class="choice" data-rows="8">8</button>
       </div>
     </div>
 
@@ -405,21 +124,23 @@
   </section>
 
   <section class="card">
+    <h2>Medication Lookup Table</h2>
+    <div class="table-wrap">
+      <table style="min-width:560px">
+        <thead><tr><th>Barcode</th><th>Drug Name</th><th>Strength</th></tr></thead>
+        <tbody id="lookupTableBody">
+          <tr><td colspan="3">Loading medication table...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card">
     <h2>Stored Measurements</h2>
     <div class="table-wrap">
       <table>
         <thead>
-        <tr>
-          <th>Operator</th>
-          <th>Drug Name</th>
-          <th>Strength</th>
-          <th>EAN-13 Barcode</th>
-          <th>Packaging</th>
-          <th>Material</th>
-          <th>Rows</th>
-          <th>Capture Date</th>
-          <th>Finish Time</th>
-        </tr>
+        <tr><th>Operator</th><th>Barcode</th><th>Drug Name</th><th>Strength</th><th>Packaging</th><th>Material</th><th>Rows</th><th>Capture Date</th><th>Finish Time</th></tr>
         </thead>
         <tbody id="recordsBody"></tbody>
       </table>
@@ -428,10 +149,345 @@
       <button class="secondary" id="exportCsvBtn">Export CSV</button>
       <button class="danger" id="clearDataBtn">Clear Stored Data</button>
     </div>
-    <p class="small">Data is stored locally in this browser on this device. &nbsp; App version 2.0</p>
+    <p class="small">Data is stored locally in this browser on this device.</p>
   </section>
+
+  <p class="small" style="text-align:center">App version 4.0</p>
 </div>
 
-<script src="./app.js?v=2"></script>
+<script>
+(function(){
+  var $ = function(id){ return document.getElementById(id); };
+
+  // Medication lookup table loaded from medications.json
+  var medicationTable = {};
+  var medicationTableLoaded = false;
+
+  function loadMedicationTable(){
+    return fetch("./medications.json?cb=" + new Date().getTime(), { cache: "no-store" })
+      .then(function(response){
+        if(!response.ok) throw new Error("Could not load medications.json");
+        return response.json();
+      })
+      .then(function(records){
+        medicationTable = {};
+        for(var i=0;i<records.length;i++){
+          var r = records[i];
+          if(r && r.barcode){
+            medicationTable[String(r.barcode)] = {
+              drugName: r.drugName || "",
+              strength: r.strength || ""
+            };
+          }
+        }
+        medicationTableLoaded = true;
+        renderMedicationLookupTable(records);
+        return records;
+      })
+      .catch(function(err){
+        medicationTableLoaded = false;
+        console.error(err);
+        var body = document.getElementById("lookupTableBody");
+        if(body){
+          body.innerHTML = '<tr><td colspan="3">Could not load medications.json</td></tr>';
+        }
+        return [];
+      });
+  }
+
+  function renderMedicationLookupTable(records){
+    var body = document.getElementById("lookupTableBody");
+    if(!body) return;
+    if(!records || !records.length){
+      body.innerHTML = '<tr><td colspan="3">No medication records loaded.</td></tr>';
+      return;
+    }
+    var out = "";
+    for(var i=0;i<records.length;i++){
+      out += "<tr><td>"+esc(records[i].barcode)+"</td><td>"+esc(records[i].drugName)+"</td><td>"+esc(records[i].strength)+"</td></tr>";
+    }
+    body.innerHTML = out;
+  }
+
+  var state = {
+    operator:"",
+    barcode:"",
+    drugName:"",
+    strength:"",
+    packaging:"",
+    material:"",
+    rows:"",
+    captureDate:"",
+    finishTime:"",
+    barcodeReader:null,
+    scanActive:false
+  };
+
+  function show(id){ $(id).classList.remove("hidden"); }
+  function hide(id){ $(id).classList.add("hidden"); }
+  function setStatus(id,text,cls){
+    var el=$(id); el.textContent=text||""; el.className="status"+(cls?(" "+cls):"");
+  }
+  function esc(s){
+    return String(s == null ? "" : s)
+      .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+      .replace(/"/g,"&quot;").replace(/'/g,"&#039;");
+  }
+  function dateStr(){
+    var d=new Date();
+    return ("0"+d.getDate()).slice(-2)+"/"+("0"+(d.getMonth()+1)).slice(-2)+"/"+d.getFullYear();
+  }
+  function timeStr(){
+    var d=new Date();
+    return ("0"+d.getHours()).slice(-2)+":"+("0"+d.getMinutes()).slice(-2)+":"+("0"+d.getSeconds()).slice(-2);
+  }
+  function isValidEAN13(code){
+    if(!/^\d{13}$/.test(code)) return false;
+    var sum=0, i;
+    for(i=0;i<12;i++) sum += parseInt(code.charAt(i),10) * (i%2===0 ? 1 : 3);
+    return ((10-(sum%10))%10) === parseInt(code.charAt(12),10);
+  }
+  function summaryHtml(includePackaging){
+    var h =
+      '<div class="summary-item"><div class="summary-label">Barcode</div><div class="summary-value">'+esc(state.barcode)+'</div></div>'+
+      '<div class="summary-item"><div class="summary-label">Drug Name</div><div class="summary-value">'+esc(state.drugName)+'</div></div>'+
+      '<div class="summary-item"><div class="summary-label">Strength</div><div class="summary-value">'+esc(state.strength)+'</div></div>';
+    if(includePackaging && state.packaging){
+      h += '<div class="summary-item"><div class="summary-label">Packaging</div><div class="summary-value">'+esc(state.packaging)+'</div></div>';
+      if(state.packaging==="Blister"){
+        h += '<div class="summary-item"><div class="summary-label">Material</div><div class="summary-value">'+esc(state.material)+'</div></div>'+
+             '<div class="summary-item"><div class="summary-label">Rows</div><div class="summary-value">'+esc(state.rows)+'</div></div>';
+      }
+    }
+    return h;
+  }
+  function getRecords(){
+    try { return JSON.parse(localStorage.getItem("webstercareMedicationMeasurements") || "[]"); }
+    catch(e){ return []; }
+  }
+  function saveRecords(r){ localStorage.setItem("webstercareMedicationMeasurements", JSON.stringify(r)); }
+  function renderRecords(){
+    var r=getRecords(), out="", i, x;
+    if(!r.length){ $("recordsBody").innerHTML='<tr><td colspan="9">No measurements stored yet.</td></tr>'; return; }
+    for(i=0;i<r.length;i++){
+      x=r[i];
+      out += "<tr><td>"+esc(x.operator)+"</td><td>"+esc(x.barcode)+"</td><td>"+esc(x.drugName)+"</td><td>"+esc(x.strength)+"</td><td>"+esc(x.packaging)+"</td><td>"+esc(x.material||"")+"</td><td>"+esc(x.rows||"")+"</td><td>"+esc(x.captureDate)+"</td><td>"+esc(x.finishTime)+"</td></tr>";
+    }
+    $("recordsBody").innerHTML=out;
+  }
+  function stopBarcodeScan(){
+    state.scanActive=false;
+    if(state.barcodeReader){ try{ state.barcodeReader.reset(); }catch(e){} }
+    state.barcodeReader=null;
+  }
+  function resetEntry(){
+    stopBarcodeScan();
+    state.barcode=""; state.drugName=""; state.strength=""; state.packaging=""; state.material=""; state.rows="";
+    state.captureDate=dateStr(); state.finishTime="";
+    $("manualBarcode").value=""; $("drugName").value=""; $("strength").value="";
+    hide("manualBarcodeWrap"); hide("lookupResult"); hide("blisterOptions"); hide("saveEntryBtn");
+    hide("barcodeCameraWrap"); hide("barcodeButtons"); show("openBarcodeCameraBtn");
+    setStatus("barcodeStatus","");
+    var choices=document.querySelectorAll(".choice.selected"), i;
+    for(i=0;i<choices.length;i++) choices[i].classList.remove("selected");
+  }
+  function loadScript(src, cb){
+    var existing=document.querySelector('script[data-src="'+src+'"]');
+    if(existing){ if(existing.getAttribute("data-loaded")==="1") cb(); else existing.addEventListener("load",cb); return; }
+    var s=document.createElement("script");
+    s.src=src; s.async=true; s.setAttribute("data-src",src);
+    s.onload=function(){ s.setAttribute("data-loaded","1"); cb(); };
+    s.onerror=function(){ setStatus("barcodeStatus","Barcode scanner library could not be loaded. Use manual entry below.","err"); show("manualBarcodeWrap"); };
+    document.head.appendChild(s);
+  }
+
+  function lookupBarcode(code){
+    state.barcode=code;
+    var rec=medicationTable[code];
+    if(!medicationTableLoaded){
+      setStatus("barcodeStatus","Medication table has not loaded yet. Check medications.json and refresh the page.","err");
+    }
+
+    hide("barcodeCameraWrap");
+    hide("barcodeButtons");
+    hide("manualBarcodeWrap");
+    stopBarcodeScan();
+
+    if(rec){
+      state.drugName=rec.drugName;
+      state.strength=rec.strength;
+      $("drugName").value=state.drugName;
+      $("strength").value=state.strength;
+      $("medicationSummary").innerHTML=summaryHtml(false);
+      $("lookupResult").innerHTML="<strong>Medication found.</strong><br>Barcode: "+esc(code)+"<br>Drug Name: "+esc(rec.drugName)+"<br>Strength: "+esc(rec.strength);
+      show("lookupResult");
+      setStatus("barcodeStatus","Barcode found in medication table.","ok");
+      setTimeout(function(){
+        hide("barcodeCard");
+        show("confirmCard");
+        window.scrollTo(0,0);
+      }, 350);
+    } else {
+      $("lookupResult").innerHTML="<strong>Barcode not found in medication table.</strong><br>Barcode: "+esc(code)+"<br><br>You can add this medication manually below.";
+      show("lookupResult");
+      setStatus("barcodeStatus","Barcode captured, but no medication record was found.","err");
+      state.drugName="";
+      state.strength="";
+      $("drugName").value="";
+      $("strength").value="";
+      $("medicationSummary").innerHTML=summaryHtml(false);
+      setTimeout(function(){
+        hide("barcodeCard");
+        show("confirmCard");
+        window.scrollTo(0,0);
+      }, 500);
+    }
+  }
+
+  function beginBarcodeScan(){
+    setStatus("barcodeStatus","Loading barcode scanner...");
+    loadScript("https://unpkg.com/@zxing/library@0.21.3/umd/index.min.js", function(){
+      if(!window.ZXing){
+        setStatus("barcodeStatus","Barcode scanner library unavailable. Use manual entry.","err");
+        show("manualBarcodeWrap"); return;
+      }
+      try{
+        state.scanActive=true;
+        show("barcodeCameraWrap"); show("barcodeButtons"); hide("openBarcodeCameraBtn");
+        var hints=new Map();
+        hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS,[ZXing.BarcodeFormat.EAN_13]);
+        state.barcodeReader=new ZXing.BrowserMultiFormatReader(hints);
+        state.barcodeReader.listVideoInputDevices().then(function(devices){
+          var deviceId, i, label;
+          for(i=0;i<devices.length;i++){
+            label=(devices[i].label||"").toLowerCase();
+            if(label.indexOf("back")>=0 || label.indexOf("rear")>=0 || label.indexOf("environment")>=0){ deviceId=devices[i].deviceId; break; }
+          }
+          if(!deviceId && devices.length) deviceId=devices[devices.length-1].deviceId;
+          return state.barcodeReader.decodeFromVideoDevice(deviceId,$("barcodeVideo"),function(result,err){
+            if(!state.scanActive) return;
+            if(result){
+              var code=result.getText();
+              if(isValidEAN13(code)) lookupBarcode(code);
+            }
+          });
+        }).then(function(){ setStatus("barcodeStatus","Scanning for an EAN-13 barcode..."); })
+        .catch(function(){ setStatus("barcodeStatus","Camera scan failed. Use manual barcode entry.","err"); show("manualBarcodeWrap"); });
+      }catch(e){
+        setStatus("barcodeStatus","Barcode scan could not start. Use manual entry.","err"); show("manualBarcodeWrap");
+      }
+    });
+  }
+
+  $("startBtn").onclick=function(){
+    var op=$("operator").value;
+    if(!op){ alert("Please select your name."); return; }
+    state.operator=op;
+    resetEntry();
+    hide("userCard"); hide("savedCard"); hide("confirmCard"); hide("packagingCard"); show("barcodeCard");
+    if(!medicationTableLoaded){
+      setStatus("barcodeStatus","Medication lookup table is still loading. You can open the scanner while it finishes loading.");
+    }
+    window.scrollTo(0,0);
+  };
+  $("openBarcodeCameraBtn").onclick=beginBarcodeScan;
+  $("manualBarcodeBtn").onclick=function(){ show("manualBarcodeWrap"); };
+  $("cancelBarcodeBtn").onclick=function(){ stopBarcodeScan(); hide("barcodeCameraWrap"); hide("barcodeButtons"); show("openBarcodeCameraBtn"); setStatus("barcodeStatus",""); };
+  $("saveManualBarcodeBtn").onclick=function(){
+    var code=$("manualBarcode").value.replace(/\D/g,"");
+    if(!isValidEAN13(code)){ setStatus("barcodeStatus","Please enter a valid 13-digit EAN-13 barcode.","err"); return; }
+    lookupBarcode(code);
+  };
+  $("rescanBtn").onclick=function(){
+    hide("confirmCard"); show("barcodeCard");
+    state.barcode=""; state.drugName=""; state.strength="";
+    $("manualBarcode").value=""; hide("lookupResult");
+    show("openBarcodeCameraBtn"); setStatus("barcodeStatus","");
+  };
+  $("confirmDrugBtn").onclick=function(){
+    state.drugName=$("drugName").value.replace(/^\s+|\s+$/g,"");
+    state.strength=$("strength").value.replace(/^\s+|\s+$/g,"");
+    if(!state.drugName || !state.strength){ alert("Please confirm Drug Name and Strength."); return; }
+    $("packagingSummary").innerHTML=summaryHtml(false);
+    hide("confirmCard"); show("packagingCard"); window.scrollTo(0,0);
+  };
+
+  var pBtns=document.querySelectorAll("[data-packaging]"), i;
+  for(i=0;i<pBtns.length;i++){
+    pBtns[i].onclick=function(){
+      var all=document.querySelectorAll("[data-packaging]"), j;
+      for(j=0;j<all.length;j++) all[j].classList.remove("selected");
+      this.classList.add("selected"); state.packaging=this.getAttribute("data-packaging");
+      if(state.packaging==="Bottle"){
+        state.material=""; state.rows=""; hide("blisterOptions"); show("saveEntryBtn");
+      }else{
+        state.material=""; state.rows=""; show("blisterOptions"); hide("saveEntryBtn");
+      }
+    };
+  }
+  var mBtns=document.querySelectorAll("[data-material]");
+  for(i=0;i<mBtns.length;i++){
+    mBtns[i].onclick=function(){
+      var all=document.querySelectorAll("[data-material]"), j;
+      for(j=0;j<all.length;j++) all[j].classList.remove("selected");
+      this.classList.add("selected"); state.material=this.getAttribute("data-material");
+      if(state.rows) show("saveEntryBtn");
+    };
+  }
+  var rBtns=document.querySelectorAll("[data-rows]");
+  for(i=0;i<rBtns.length;i++){
+    rBtns[i].onclick=function(){
+      var all=document.querySelectorAll("[data-rows]"), j;
+      for(j=0;j<all.length;j++) all[j].classList.remove("selected");
+      this.classList.add("selected"); state.rows=this.getAttribute("data-rows");
+      if(state.material) show("saveEntryBtn");
+    };
+  }
+
+  $("saveEntryBtn").onclick=function(){
+    state.finishTime=timeStr();
+    var rec={
+      operator:state.operator, barcode:state.barcode, drugName:state.drugName, strength:state.strength,
+      packaging:state.packaging, material:state.packaging==="Blister"?state.material:"",
+      rows:state.packaging==="Blister"?state.rows:"", captureDate:state.captureDate, finishTime:state.finishTime
+    };
+    var records=getRecords(); records.push(rec); saveRecords(records); renderRecords();
+    $("savedSummary").innerHTML=summaryHtml(true)+
+      '<div class="summary-item"><div class="summary-label">Operator</div><div class="summary-value">'+esc(state.operator)+'</div></div>'+
+      '<div class="summary-item"><div class="summary-label">Capture Date</div><div class="summary-value">'+esc(state.captureDate)+'</div></div>'+
+      '<div class="summary-item"><div class="summary-label">Finish Time</div><div class="summary-value">'+esc(state.finishTime)+'</div></div>';
+    hide("packagingCard"); show("savedCard"); window.scrollTo(0,0);
+  };
+
+  $("newEntryBtn").onclick=function(){
+    resetEntry(); hide("savedCard"); show("barcodeCard"); window.scrollTo(0,0);
+  };
+
+  $("exportCsvBtn").onclick=function(){
+    var records=getRecords();
+    if(!records.length){ alert("There are no stored measurements to export."); return; }
+    var headers=["Operator","Barcode","Drug Name","Strength","Packaging","Material","Rows","Capture Date","Finish Time"];
+    var keys=["operator","barcode","drugName","strength","packaging","material","rows","captureDate","finishTime"];
+    function q(v){ return '"'+String(v==null?"":v).replace(/"/g,'""')+'"'; }
+    var lines=[headers.map(q).join(",")], i,j,row;
+    for(i=0;i<records.length;i++){
+      row=[]; for(j=0;j<keys.length;j++) row.push(q(records[i][keys[j]]));
+      lines.push(row.join(","));
+    }
+    var blob=new Blob([lines.join("\r\n")],{type:"text/csv;charset=utf-8"});
+    var url=URL.createObjectURL(blob), a=document.createElement("a");
+    a.href=url; a.download="Webstercare_Medication_Measurements_"+new Date().toISOString().slice(0,10)+".csv";
+    a.click(); URL.revokeObjectURL(url);
+  };
+  $("clearDataBtn").onclick=function(){
+    if(confirm("Clear all stored measurement records from this device?")){
+      localStorage.removeItem("webstercareMedicationMeasurements"); renderRecords();
+    }
+  };
+
+  loadMedicationTable();
+  renderRecords();
+})();
+</script>
 </body>
 </html>

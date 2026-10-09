@@ -1,46 +1,46 @@
-# Webstercare Medication Measurement Tool v2
+# Webstercare Medication Measurement Tool v4
 
-This revision fixes iPhone/Safari startup responsiveness.
+The medication lookup data is now stored in a separate JSON file:
 
-Key change: the OCR and EAN-13 barcode libraries are now loaded only when needed, so the operator selector and Start New Entry button become active immediately. The main app JavaScript is also transpiled for older Safari compatibility.
+`medications.json`
 
-# Webstercare Medication Measurement Tool
+Example:
 
-This is an iPhone-friendly web app/PWA prototype.
+```json
+[
+  {
+    "barcode": "9322147031008",
+    "drugName": "Cartia",
+    "strength": "100mg"
+  }
+]
+```
 
-## Workflow
-1. Select operator: Ian, Anna, Vimlesh, Brett or Sal.
-2. Photograph the medication label.
-3. OCR attempts to populate Drug Name and Strength.
-4. User confirms/edits those fields.
-5. Scan an EAN-13 barcode with the camera.
-6. Select Packaging:
-   - Bottle; or
-   - Blister, then select Material (Plastic-Foil or Foil-Foil) and Rows (1-8).
-7. Save the entry.
-8. The app stores:
-   - Operator
-   - Drug Name
-   - Strength
-   - EAN-13 barcode
-   - Packaging
-   - Material
-   - Rows
-   - Capture Date
-   - Finish Time
-9. Stored data can be exported as CSV.
+To add more medication records, add another object separated by a comma, for example:
 
-## Running on iPhone
-Camera access requires HTTPS (or localhost during development).
+```json
+[
+  {
+    "barcode": "9322147031008",
+    "drugName": "Cartia",
+    "strength": "100mg"
+  },
+  {
+    "barcode": "1234567890128",
+    "drugName": "Example Drug",
+    "strength": "20mg"
+  }
+]
+```
 
-For testing:
-- Host this folder on any HTTPS-capable web server.
-- Open the URL in Safari on the iPhone.
-- Allow Camera access.
-- In Safari, use Share > Add to Home Screen to install it like an app.
+The app loads `medications.json` when it starts. You do not need to edit `index.html` when adding medication records.
 
-## Notes
-- OCR uses Tesseract.js loaded from a CDN.
-- Barcode reading uses ZXing loaded from a CDN and is restricted to EAN-13.
-- Stored records use browser localStorage on the device.
-- For production use, replace localStorage with a central secure database/API if multiple devices need to share data.
+Workflow:
+1. Select operator.
+2. Scan EAN-13 barcode.
+3. App looks up barcode in `medications.json`.
+4. Displays Barcode, Drug Name and Strength.
+5. User confirms/corrects details.
+6. Select Bottle or Blister.
+7. If Blister, select Material and Rows 1-8.
+8. Save the record.

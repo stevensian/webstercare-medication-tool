@@ -1,7 +1,7 @@
 {
   "name": "Webstercare Medication Measurement Tool",
   "short_name": "Webstercare Measure",
-  "start_url": "./index.html?v=2",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#f5f7fa",
   "theme_color": "#ffffff",
