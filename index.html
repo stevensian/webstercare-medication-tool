@@ -18,7 +18,7 @@
     button{min-height:46px;border:none;border-radius:11px;padding:10px 14px;font-size:16px;font-weight:700;cursor:pointer}.primary{background:var(--primary);color:#fff;width:100%}.primary:active{background:var(--primary-dark)}
     .secondary{background:#eef2f6;color:var(--text)}.success{background:var(--success);color:#fff}.danger{background:#fee4e2;color:var(--danger)}
     .button-row{display:flex;gap:10px;flex-wrap:wrap}.button-row>button{flex:1 1 140px}.choice-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.rows-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-    .choice{background:#eef2f6;color:var(--text);border:2px solid transparent}.choice.selected{background:var(--chip);color:var(--primary-dark);border-color:var(--primary)}
+    .choice{background:#eef2f6;color:var(--text);border:2px solid transparent}.visual-choice{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:10px}.visual-choice img{width:100%;max-width:150px;height:110px;object-fit:contain;border-radius:10px;background:#fff}.visual-choice span{font-size:18px;font-weight:700}.choice.selected{background:var(--chip);color:var(--primary-dark);border-color:var(--primary)}
     .summary{display:grid;gap:8px}.summary-item{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid #eef2f6;padding:8px 0}.summary-item:last-child{border-bottom:none}.summary-label{color:var(--muted);font-size:14px}.summary-value{font-weight:700;text-align:right;word-break:break-word}
     .camera-wrap{position:relative;overflow:hidden;border-radius:14px;background:#111;margin-bottom:12px}video,canvas.preview{width:100%;display:block;border-radius:14px}
     .scan-guide{position:absolute;left:8%;right:8%;top:34%;height:32%;border:3px solid rgba(255,255,255,.9);border-radius:12px;pointer-events:none;box-shadow:0 0 0 9999px rgba(0,0,0,.18)}
@@ -157,7 +157,10 @@
     <div class="hidden" id="markingOptions" style="margin-top:16px;">
       <label for="markingText"><strong>Marking?</strong></label>
       <input id="markingText" type="text" autocomplete="off" placeholder="Enter pill marking or imprint" />
-      <button class="secondary" id="confirmMarkingBtn" style="width:100%;">Confirm Marking</button>
+      <div class="button-row">
+        <button class="secondary" id="confirmMarkingBtn">Confirm Marking</button>
+        <button class="choice" id="noMarkingBtn">None</button>
+      </div>
     </div>
 
     <div class="hidden" id="scoreLineOptions" style="margin-top:16px;">
@@ -225,9 +228,18 @@
     <div id="roundTabletProfile" class="hidden">
       <p><strong>Round Tablet Profile?</strong></p>
       <div class="choice-grid">
-        <button class="choice" data-round-profile="Convex">Convex</button>
-        <button class="choice" data-round-profile="Flat">Flat</button>
-        <button class="choice" data-round-profile="Thick">Thick</button>
+        <button class="choice visual-choice" data-round-profile="Convex">
+          <img src="profile-convex.png" alt="Convex round tablet">
+          <span>Convex</span>
+        </button>
+        <button class="choice visual-choice" data-round-profile="Coated">
+          <img src="profile-coated.png" alt="Coated round tablet">
+          <span>Coated</span>
+        </button>
+        <button class="choice visual-choice" data-round-profile="Flat">
+          <img src="profile-flat.png" alt="Flat round tablet">
+          <span>Flat</span>
+        </button>
       </div>
     </div>
 
@@ -293,7 +305,7 @@
     <p class="small">Data is stored locally in this browser on this device.</p>
   </section>
 
-  <p class="small" style="text-align:center">App version 7.2 — Pill details</p>
+  <p class="small" style="text-align:center">App version 7.4 — Optional markings</p>
 </div>
 
 <script>
@@ -461,7 +473,7 @@
     stopBarcodeScan();
     state.barcode=""; state.drugName=""; state.strength=""; state.pillType=""; state.pillDetailLabel=""; state.pillDetailValue=""; state.coating=""; state.marking=""; state.scoreLine=""; state.tabletShape=""; state.roundProfile=""; state.packaging=""; state.material=""; state.rows=""; state.orientation=""; state.measureLength=""; state.measureWidth=""; state.measureThickness="";
     state.captureDate=dateStr(); state.finishTime="";
-    $("manualBarcode").value=""; $("drugName").value=""; $("strength").value=""; $("markingText").value=""; $("measureLength").value=""; $("measureWidth").value=""; $("measureThickness").value="";
+    $("manualBarcode").value=""; $("drugName").value=""; $("strength").value=""; $("markingText").value=""; $("noMarkingBtn").classList.remove("selected"); $("measureLength").value=""; $("measureWidth").value=""; $("measureThickness").value="";
     hide("manualBarcodeWrap"); hide("lookupResult"); hide("capsuleOptions"); hide("softCapsuleOptions"); hide("coatingOptions"); hide("markingOptions"); hide("scoreLineOptions"); hide("tabletOptions"); hide("continueToPackagingBtn"); hide("blisterOptions"); hide("saveEntryBtn"); hide("pillDimensionsCard"); hide("roundTabletProfile"); hide("continueToMeasurementsBtn2");
     hide("barcodeCameraWrap"); hide("barcodeButtons"); show("openBarcodeCameraBtn");
     setStatus("barcodeStatus","");
@@ -686,11 +698,26 @@
     };
   }
 
-  $("confirmMarkingBtn").onclick=function(){
-    state.marking=$("markingText").value.replace(/^\s+|\s+$/g,"");
-    if(!state.marking){ alert("Please enter the pill marking."); return; }
+  function continueAfterMarking(){
     if(state.pillType==="Tablet") show("scoreLineOptions");
     else show("continueToPackagingBtn");
+  }
+
+  $("confirmMarkingBtn").onclick=function(){
+    state.marking=$("markingText").value.replace(/^\s+|\s+$/g,"");
+    if(!state.marking){
+      alert('Enter the marking, or choose "None".');
+      return;
+    }
+    $("noMarkingBtn").classList.remove("selected");
+    continueAfterMarking();
+  };
+
+  $("noMarkingBtn").onclick=function(){
+    state.marking="None";
+    $("markingText").value="";
+    this.classList.add("selected");
+    continueAfterMarking();
   };
 
   var scoreBtns=document.querySelectorAll("[data-score-line]");
@@ -718,7 +745,7 @@
   }
 
   $("continueToPackagingBtn").onclick=function(){
-    if(!state.pillType || !state.coating || !state.marking){ alert("Please complete Pill Type, Coating and Marking."); return; }
+    if(!state.pillType || !state.coating || !state.marking){ alert("Please complete Pill Type, Coating and Marking (or choose None)."); return; }
     if(state.pillType==="Tablet" && (!state.scoreLine || !state.tabletShape)){ alert("Please complete Score Line and Shape."); return; }
     if((state.pillType==="Capsule" || state.pillType==="Soft Capsule") && !state.pillDetailValue){ alert("Please complete the pill type details."); return; }
     $("packagingSummary").innerHTML=summaryHtml(false);
@@ -798,7 +825,7 @@
 
   $("continueToMeasurementsBtn2").onclick=function(){
     if(state.pillType==="Tablet" && state.tabletShape==="Round" && !state.roundProfile){
-      alert("Please select Convex, Flat or Thick.");
+      alert("Please select Convex, Coated or Flat.");
       return;
     }
     $("measurementsSummary").innerHTML=summaryHtml(true);

@@ -45,3 +45,25 @@ This is only a simple access barrier for a static GitHub Pages prototype. The pa
 - Tablet + Round only: Round Tablet Profile = Convex, Flat, or Thick.
 - Existing numeric Length/Width/Thickness section is now Part 5.
 - All new fields are stored and exported to CSV.
+
+
+## v7.3 Visual pill profile options
+
+For Tablet + Round, the profile question now uses selectable image cards supplied by the user:
+
+- Convex
+- Coated
+- Flat
+
+The selected text value is stored in the result table and CSV export.
+
+
+## v7.4 Marking option
+
+The Marking question is now optional.
+
+Users can either:
+- enter a marking/imprint and press Confirm Marking, or
+- press `None`
+
+When `None` is selected, the stored/exported Marking value is `None`.
