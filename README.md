@@ -73,3 +73,14 @@ When `None` is selected, the stored/exported Marking value is `None`.
 - Tablet + Round shows a mandatory Diagonal (mm) field.
 - Diagonal must use exactly 2 decimal places, e.g. 10.25.
 - Diagonal is stored and included in CSV export.
+
+
+## v7.5 measurement logic
+
+- All references to `Length` are now `Height`.
+- For Tablet + Round:
+  - Diagonal is not shown immediately.
+  - Once Width and Thickness are entered, the app calculates the absolute difference.
+  - If `|Width - Thickness| < 2.00 mm`, Diagonal is shown and becomes mandatory.
+  - If the difference is 2.00 mm or greater, Diagonal remains hidden and is not required.
+- When required, Diagonal must be entered in mm with exactly 2 decimal places.
