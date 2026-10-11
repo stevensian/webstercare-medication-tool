@@ -84,3 +84,18 @@ When `None` is selected, the stored/exported Marking value is `None`.
   - If `|Width - Thickness| < 2.00 mm`, Diagonal is shown and becomes mandatory.
   - If the difference is 2.00 mm or greater, Diagonal remains hidden and is not required.
 - When required, Diagonal must be entered in mm with exactly 2 decimal places.
+
+
+## v7.6 measurement precision
+- Height, Width and Thickness are mandatory.
+- Each must be entered in mm with exactly 2 decimal places.
+- Diagonal, when conditionally required, must also be entered in mm with exactly 2 decimal places.
+
+
+## v7.7 Medication Lookup Table
+- Medication Lookup Table is collapsed by default.
+- Down arrow expands the section.
+- Up arrow collapses the section.
+- Expanded view contains a search field and Search button.
+- Search matches Barcode, Drug Name, or Strength.
+- Clearing the search restores the full lookup table.

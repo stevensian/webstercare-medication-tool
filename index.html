@@ -24,7 +24,7 @@
     .scan-guide{position:absolute;left:8%;right:8%;top:34%;height:32%;border:3px solid rgba(255,255,255,.9);border-radius:12px;pointer-events:none;box-shadow:0 0 0 9999px rgba(0,0,0,.18)}
     .status{font-size:14px;color:var(--muted);margin:6px 0 12px;min-height:20px}.status.ok{color:var(--success);font-weight:650}.status.err{color:var(--danger);font-weight:650}
     .table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px}table{border-collapse:collapse;width:100%;min-width:980px;font-size:13px;background:#fff}th,td{text-align:left;padding:9px 10px;border-bottom:1px solid #eaecf0;vertical-align:top}th{background:#f8fafc;position:sticky;top:0;z-index:1}
-    .small{font-size:12px;color:var(--muted)}.capsule-unknown{grid-column:span 2}.measurement-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.measurement-grid input{margin-bottom:0}@media(max-width:520px){.measurement-grid{grid-template-columns:1fr}}.footer-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.footer-actions button{flex:1 1 160px}.required::after{content:" *";color:var(--danger)}
+    .small{font-size:12px;color:var(--muted)}.section-title-row{display:flex;align-items:center;justify-content:space-between;gap:12px}.collapse-toggle{min-width:46px;width:46px;padding:6px;font-size:22px;line-height:1;background:#eef2f6;color:var(--text)}.lookup-search-row{display:flex;gap:8px;align-items:center;margin-bottom:12px}.lookup-search-row input{margin-bottom:0;flex:1}.lookup-search-row button{flex:0 0 auto}.lookup-empty{padding:14px;color:var(--muted);text-align:center}.capsule-unknown{grid-column:span 2}.measurement-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.measurement-grid input{margin-bottom:0}@media(max-width:520px){.measurement-grid{grid-template-columns:1fr}}.footer-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.footer-actions button{flex:1 1 160px}.required::after{content:" *";color:var(--danger)}
     .lookup-card{background:#f8fafc;border:1px solid #e4e7ec;border-radius:12px;padding:12px;margin-top:12px}
     @media(max-width:420px){h1{font-size:21px}.rows-grid{grid-template-columns:repeat(4,1fr)}button{font-size:15px}}
   </style>
@@ -255,15 +255,15 @@
     <div class="measurement-grid">
       <div>
         <label for="measureHeight">Height (mm)</label>
-        <input id="measureHeight" type="number" inputmode="decimal" min="0" step="0.1" placeholder="e.g. 12.5" />
+        <input id="measureHeight" type="text" inputmode="decimal" placeholder="e.g. 12.50" /><div class="small">mm, exactly 2 decimal places.</div>
       </div>
       <div>
         <label for="measureWidth">Width (mm)</label>
-        <input id="measureWidth" type="number" inputmode="decimal" min="0" step="0.1" placeholder="e.g. 7.2" />
+        <input id="measureWidth" type="text" inputmode="decimal" placeholder="e.g. 7.20" /><div class="small">mm, exactly 2 decimal places.</div>
       </div>
       <div>
         <label for="measureThickness">Thickness (mm)</label>
-        <input id="measureThickness" type="number" inputmode="decimal" min="0" step="0.1" placeholder="e.g. 4.0" />
+        <input id="measureThickness" type="text" inputmode="decimal" placeholder="e.g. 4.00" /><div class="small">mm, exactly 2 decimal places.</div>
       </div>
       <div id="measureDiagonalWrap" class="hidden">
         <label for="measureDiagonal">Diagonal (mm)</label>
@@ -282,14 +282,27 @@
   </section>
 
   <section class="card">
-    <h2>Medication Lookup Table</h2>
-    <div class="table-wrap">
-      <table style="min-width:560px">
-        <thead><tr><th>Barcode</th><th>Drug Name</th><th>Strength</th></tr></thead>
-        <tbody id="lookupTableBody">
-          <tr><td colspan="3">Loading medication table...</td></tr>
-        </tbody>
-      </table>
+    <div class="section-title-row">
+      <h2 style="margin:0;">Medication Lookup Table</h2>
+      <button class="collapse-toggle" id="lookupToggleBtn" aria-expanded="false" aria-controls="lookupPanel">▼</button>
+    </div>
+
+    <div id="lookupPanel" class="hidden" style="margin-top:14px;">
+      <div class="lookup-search-row">
+        <input id="lookupSearchInput" type="text" placeholder="Search barcode, drug name or strength" autocomplete="off" />
+        <button class="secondary" id="lookupSearchBtn">Search</button>
+      </div>
+
+      <div class="table-wrap">
+        <table style="min-width:560px">
+          <thead>
+            <tr><th>Barcode</th><th>Drug Name</th><th>Strength</th></tr>
+          </thead>
+          <tbody id="lookupTableBody">
+            <tr><td colspan="3">Loading medication table...</td></tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </section>
 
@@ -310,7 +323,7 @@
     <p class="small">Data is stored locally in this browser on this device.</p>
   </section>
 
-  <p class="small" style="text-align:center">App version 7.5 - Copyright Webstercare 2026.</p>
+  <p class="small" style="text-align:center">App version 7.7 - Copyright Webstercare 2026.</p>
 </div>
 
 <script>
@@ -331,6 +344,7 @@
 
   // Medication lookup table loaded from medications.json
   var medicationTable = {};
+  var medicationRecords = [];
   var medicationTableLoaded = false;
 
   function loadMedicationTable(){
@@ -341,6 +355,7 @@
       })
       .then(function(records){
         medicationTable = {};
+        medicationRecords = records || [];
         for(var i=0;i<records.length;i++){
           var r = records[i];
           if(r && r.barcode){
@@ -368,15 +383,34 @@
   function renderMedicationLookupTable(records){
     var body = document.getElementById("lookupTableBody");
     if(!body) return;
+
     if(!records || !records.length){
-      body.innerHTML = '<tr><td colspan="3">No medication records loaded.</td></tr>';
+      body.innerHTML = '<tr><td colspan="3" class="lookup-empty">No medication records found.</td></tr>';
       return;
     }
+
     var out = "";
     for(var i=0;i<records.length;i++){
       out += "<tr><td>"+esc(records[i].barcode)+"</td><td>"+esc(records[i].drugName)+"</td><td>"+esc(records[i].strength)+"</td></tr>";
     }
     body.innerHTML = out;
+  }
+
+  function filterMedicationLookup(){
+    var q = $("lookupSearchInput").value.replace(/^\s+|\s+$/g,"").toLowerCase();
+
+    if(!q){
+      renderMedicationLookupTable(medicationRecords);
+      return;
+    }
+
+    var filtered = medicationRecords.filter(function(r){
+      return String(r.barcode||"").toLowerCase().indexOf(q) !== -1 ||
+             String(r.drugName||"").toLowerCase().indexOf(q) !== -1 ||
+             String(r.strength||"").toLowerCase().indexOf(q) !== -1;
+    });
+
+    renderMedicationLookupTable(filtered);
   }
 
   var state = {
@@ -868,15 +902,25 @@
     state.measureThickness=$("measureThickness").value;
     state.measureDiagonal=$("measureDiagonal").value.replace(/^\s+|\s+$/g,"");
 
-    if(!state.measureHeight || !state.measureWidth || !state.measureThickness){
-      alert("Please enter Height, Width and Thickness.");
+    var twoDecimalMM = /^\d+(?:\.\d{2})$/;
+
+    if(!twoDecimalMM.test(state.measureHeight)){
+      alert("Height is required and must be entered in mm to exactly 2 decimal places, for example 12.50.");
+      return;
+    }
+    if(!twoDecimalMM.test(state.measureWidth)){
+      alert("Width is required and must be entered in mm to exactly 2 decimal places, for example 7.20.");
+      return;
+    }
+    if(!twoDecimalMM.test(state.measureThickness)){
+      alert("Thickness is required and must be entered in mm to exactly 2 decimal places, for example 4.00.");
       return;
     }
 
     var diagonalRequired = updateDiagonalRequirement();
 
     if(diagonalRequired){
-      if(!/^\d+(?:\.\d{2})$/.test(state.measureDiagonal)){
+      if(!twoDecimalMM.test(state.measureDiagonal)){
         alert("Diagonal is required because this is a round tablet and the difference between Width and Thickness is less than 2.00 mm. Enter Diagonal in mm to exactly 2 decimal places, for example 10.25.");
         return;
       }
@@ -943,6 +987,35 @@
       localStorage.removeItem("webstercareMedicationMeasurements"); renderRecords();
     }
   };
+
+  $("lookupToggleBtn").onclick=function(){
+    var panel=$("lookupPanel");
+    var isHidden=panel.classList.contains("hidden");
+
+    if(isHidden){
+      show("lookupPanel");
+      this.textContent="▲";
+      this.setAttribute("aria-expanded","true");
+      renderMedicationLookupTable(medicationRecords);
+    }else{
+      hide("lookupPanel");
+      this.textContent="▼";
+      this.setAttribute("aria-expanded","false");
+    }
+  };
+
+  $("lookupSearchBtn").onclick=filterMedicationLookup;
+
+  $("lookupSearchInput").addEventListener("keydown",function(e){
+    if(e.key==="Enter"){
+      e.preventDefault();
+      filterMedicationLookup();
+    }
+  });
+
+  $("lookupSearchInput").addEventListener("input",function(){
+    if(this.value==="") renderMedicationLookupTable(medicationRecords);
+  });
 
   loadMedicationTable();
   renderRecords();
