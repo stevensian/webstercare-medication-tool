@@ -265,6 +265,11 @@
         <label for="measureThickness">Thickness (mm)</label>
         <input id="measureThickness" type="number" inputmode="decimal" min="0" step="0.1" placeholder="e.g. 4.0" />
       </div>
+      <div id="measureDiagonalWrap" class="hidden">
+        <label for="measureDiagonal">Diagonal (mm)</label>
+        <input id="measureDiagonal" type="text" inputmode="decimal" placeholder="e.g. 10.25" />
+        <div class="small">Required for round tablets. Enter exactly 2 decimal places.</div>
+      </div>
     </div>
 
     <button class="primary" id="saveMeasurementsBtn" style="margin-top:18px;">Save Entry</button>
@@ -293,7 +298,7 @@
     <div class="table-wrap">
       <table>
         <thead>
-        <tr><th>Operator</th><th>Barcode</th><th>Drug Name</th><th>Strength</th><th>Pill Type</th><th>Pill Detail</th><th>Coating</th><th>Marking</th><th>Score Line</th><th>Shape</th><th>Round Profile</th><th>Packaging</th><th>Material</th><th>Rows</th><th>Orientation</th><th>Length (mm)</th><th>Width (mm)</th><th>Thickness (mm)</th><th>Capture Date</th><th>Finish Time</th></tr>
+        <tr><th>Operator</th><th>Barcode</th><th>Drug Name</th><th>Strength</th><th>Pill Type</th><th>Pill Detail</th><th>Coating</th><th>Marking</th><th>Score Line</th><th>Shape</th><th>Round Profile</th><th>Packaging</th><th>Material</th><th>Rows</th><th>Orientation</th><th>Length (mm)</th><th>Width (mm)</th><th>Thickness (mm)</th><th>Diagonal (mm)</th><th>Capture Date</th><th>Finish Time</th></tr>
         </thead>
         <tbody id="recordsBody"></tbody>
       </table>
@@ -305,7 +310,7 @@
     <p class="small">Data is stored locally in this browser on this device.</p>
   </section>
 
-  <p class="small" style="text-align:center">App version 7.4 — Optional markings</p>
+  <p class="small" style="text-align:center">App version 7.4 - Copyright Webstercare 2026.</p>
 </div>
 
 <script>
@@ -394,6 +399,7 @@
     measureLength:"",
     measureWidth:"",
     measureThickness:"",
+    measureDiagonal:"",
     captureDate:"",
     finishTime:"",
     barcodeReader:null,
@@ -457,10 +463,10 @@
   function saveRecords(r){ localStorage.setItem("webstercareMedicationMeasurements", JSON.stringify(r)); }
   function renderRecords(){
     var r=getRecords(), out="", i, x;
-    if(!r.length){ $("recordsBody").innerHTML='<tr><td colspan="20">No measurements stored yet.</td></tr>'; return; }
+    if(!r.length){ $("recordsBody").innerHTML='<tr><td colspan="21">No measurements stored yet.</td></tr>'; return; }
     for(i=0;i<r.length;i++){
       x=r[i];
-      out += "<tr><td>"+esc(x.operator)+"</td><td>"+esc(x.barcode)+"</td><td>"+esc(x.drugName)+"</td><td>"+esc(x.strength)+"</td><td>"+esc(x.pillType||"")+"</td><td>"+esc((x.pillDetailLabel||"")+(x.pillDetailValue?": "+x.pillDetailValue:""))+"</td><td>"+esc(x.coating||"")+"</td><td>"+esc(x.marking||"")+"</td><td>"+esc(x.scoreLine||"")+"</td><td>"+esc(x.tabletShape||"")+"</td><td>"+esc(x.roundProfile||"")+"</td><td>"+esc(x.packaging)+"</td><td>"+esc(x.material||"")+"</td><td>"+esc(x.rows||"")+"</td><td>"+esc(x.orientation||"")+"</td><td>"+esc(x.measureLength||"")+"</td><td>"+esc(x.measureWidth||"")+"</td><td>"+esc(x.measureThickness||"")+"</td><td>"+esc(x.captureDate)+"</td><td>"+esc(x.finishTime)+"</td></tr>";
+      out += "<tr><td>"+esc(x.operator)+"</td><td>"+esc(x.barcode)+"</td><td>"+esc(x.drugName)+"</td><td>"+esc(x.strength)+"</td><td>"+esc(x.pillType||"")+"</td><td>"+esc((x.pillDetailLabel||"")+(x.pillDetailValue?": "+x.pillDetailValue:""))+"</td><td>"+esc(x.coating||"")+"</td><td>"+esc(x.marking||"")+"</td><td>"+esc(x.scoreLine||"")+"</td><td>"+esc(x.tabletShape||"")+"</td><td>"+esc(x.roundProfile||"")+"</td><td>"+esc(x.packaging)+"</td><td>"+esc(x.material||"")+"</td><td>"+esc(x.rows||"")+"</td><td>"+esc(x.orientation||"")+"</td><td>"+esc(x.measureLength||"")+"</td><td>"+esc(x.measureWidth||"")+"</td><td>"+esc(x.measureThickness||"")+"</td><td>"+esc(x.measureDiagonal||"")+"</td><td>"+esc(x.captureDate)+"</td><td>"+esc(x.finishTime)+"</td></tr>";
     }
     $("recordsBody").innerHTML=out;
   }
@@ -471,9 +477,9 @@
   }
   function resetEntry(){
     stopBarcodeScan();
-    state.barcode=""; state.drugName=""; state.strength=""; state.pillType=""; state.pillDetailLabel=""; state.pillDetailValue=""; state.coating=""; state.marking=""; state.scoreLine=""; state.tabletShape=""; state.roundProfile=""; state.packaging=""; state.material=""; state.rows=""; state.orientation=""; state.measureLength=""; state.measureWidth=""; state.measureThickness="";
+    state.barcode=""; state.drugName=""; state.strength=""; state.pillType=""; state.pillDetailLabel=""; state.pillDetailValue=""; state.coating=""; state.marking=""; state.scoreLine=""; state.tabletShape=""; state.roundProfile=""; state.packaging=""; state.material=""; state.rows=""; state.orientation=""; state.measureLength=""; state.measureWidth=""; state.measureThickness=""; state.measureDiagonal="";
     state.captureDate=dateStr(); state.finishTime="";
-    $("manualBarcode").value=""; $("drugName").value=""; $("strength").value=""; $("markingText").value=""; $("noMarkingBtn").classList.remove("selected"); $("measureLength").value=""; $("measureWidth").value=""; $("measureThickness").value="";
+    $("manualBarcode").value=""; $("drugName").value=""; $("strength").value=""; $("markingText").value=""; $("noMarkingBtn").classList.remove("selected"); $("measureLength").value=""; $("measureWidth").value=""; $("measureThickness").value=""; $("measureDiagonal").value=""; hide("measureDiagonalWrap");
     hide("manualBarcodeWrap"); hide("lookupResult"); hide("capsuleOptions"); hide("softCapsuleOptions"); hide("coatingOptions"); hide("markingOptions"); hide("scoreLineOptions"); hide("tabletOptions"); hide("continueToPackagingBtn"); hide("blisterOptions"); hide("saveEntryBtn"); hide("pillDimensionsCard"); hide("roundTabletProfile"); hide("continueToMeasurementsBtn2");
     hide("barcodeCameraWrap"); hide("barcodeButtons"); show("openBarcodeCameraBtn");
     setStatus("barcodeStatus","");
@@ -828,6 +834,13 @@
       alert("Please select Convex, Coated or Flat.");
       return;
     }
+    if(state.pillType==="Tablet" && state.tabletShape==="Round"){
+      show("measureDiagonalWrap");
+    }else{
+      hide("measureDiagonalWrap");
+      state.measureDiagonal="";
+      $("measureDiagonal").value="";
+    }
     $("measurementsSummary").innerHTML=summaryHtml(true);
     hide("pillDimensionsCard");
     show("measurementsCard");
@@ -838,10 +851,20 @@
     state.measureLength=$("measureLength").value;
     state.measureWidth=$("measureWidth").value;
     state.measureThickness=$("measureThickness").value;
+    state.measureDiagonal=$("measureDiagonal").value.replace(/^\s+|\s+$/g,"");
 
     if(!state.measureLength || !state.measureWidth || !state.measureThickness){
       alert("Please enter Length, Width and Thickness.");
       return;
+    }
+
+    if(state.pillType==="Tablet" && state.tabletShape==="Round"){
+      if(!/^\d+(?:\.\d{2})$/.test(state.measureDiagonal)){
+        alert("Diagonal is required for a round tablet and must be entered in mm to exactly 2 decimal places, for example 10.25.");
+        return;
+      }
+    }else{
+      state.measureDiagonal="";
     }
 
     state.finishTime=timeStr();
@@ -860,6 +883,7 @@
       measureLength:state.measureLength,
       measureWidth:state.measureWidth,
       measureThickness:state.measureThickness,
+      measureDiagonal:state.measureDiagonal,
       captureDate:state.captureDate,
       finishTime:state.finishTime
     };
@@ -869,6 +893,7 @@
       '<div class="summary-item"><div class="summary-label">Length (mm)</div><div class="summary-value">'+esc(state.measureLength)+'</div></div>'+
       '<div class="summary-item"><div class="summary-label">Width (mm)</div><div class="summary-value">'+esc(state.measureWidth)+'</div></div>'+
       '<div class="summary-item"><div class="summary-label">Thickness (mm)</div><div class="summary-value">'+esc(state.measureThickness)+'</div></div>'+
+      (state.measureDiagonal ? '<div class="summary-item"><div class="summary-label">Diagonal (mm)</div><div class="summary-value">'+esc(state.measureDiagonal)+'</div></div>' : '')+
       '<div class="summary-item"><div class="summary-label">Operator</div><div class="summary-value">'+esc(state.operator)+'</div></div>'+
       '<div class="summary-item"><div class="summary-label">Capture Date</div><div class="summary-value">'+esc(state.captureDate)+'</div></div>'+
       '<div class="summary-item"><div class="summary-label">Finish Time</div><div class="summary-value">'+esc(state.finishTime)+'</div></div>';
@@ -883,8 +908,8 @@
   $("exportCsvBtn").onclick=function(){
     var records=getRecords();
     if(!records.length){ alert("There are no stored measurements to export."); return; }
-    var headers=["Operator","Barcode","Drug Name","Strength","Pill Type","Pill Detail Label","Pill Detail Value","Coating","Marking","Score Line","Shape","Round Profile","Packaging","Material","Rows","Orientation","Length (mm)","Width (mm)","Thickness (mm)","Capture Date","Finish Time"];
-    var keys=["operator","barcode","drugName","strength","pillType","pillDetailLabel","pillDetailValue","coating","marking","scoreLine","tabletShape","roundProfile","packaging","material","rows","orientation","measureLength","measureWidth","measureThickness","captureDate","finishTime"];
+    var headers=["Operator","Barcode","Drug Name","Strength","Pill Type","Pill Detail Label","Pill Detail Value","Coating","Marking","Score Line","Shape","Round Profile","Packaging","Material","Rows","Orientation","Length (mm)","Width (mm)","Thickness (mm)","Diagonal (mm)","Capture Date","Finish Time"];
+    var keys=["operator","barcode","drugName","strength","pillType","pillDetailLabel","pillDetailValue","coating","marking","scoreLine","tabletShape","roundProfile","packaging","material","rows","orientation","measureLength","measureWidth","measureThickness","measureDiagonal","captureDate","finishTime"];
     function q(v){ return '"'+String(v==null?"":v).replace(/"/g,'""')+'"'; }
     var lines=[headers.map(q).join(",")], i,j,row;
     for(i=0;i<records.length;i++){

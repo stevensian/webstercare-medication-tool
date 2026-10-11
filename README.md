@@ -67,3 +67,9 @@ Users can either:
 - press `None`
 
 When `None` is selected, the stored/exported Marking value is `None`.
+
+## v7.4 diagonal update
+- Footer: App version 7.4 - Copyright Webstercare 2026.
+- Tablet + Round shows a mandatory Diagonal (mm) field.
+- Diagonal must use exactly 2 decimal places, e.g. 10.25.
+- Diagonal is stored and included in CSV export.
