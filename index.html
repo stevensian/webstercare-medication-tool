@@ -24,7 +24,7 @@
     .scan-guide{position:absolute;left:8%;right:8%;top:34%;height:32%;border:3px solid rgba(255,255,255,.9);border-radius:12px;pointer-events:none;box-shadow:0 0 0 9999px rgba(0,0,0,.18)}
     .status{font-size:14px;color:var(--muted);margin:6px 0 12px;min-height:20px}.status.ok{color:var(--success);font-weight:650}.status.err{color:var(--danger);font-weight:650}
     .table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px}table{border-collapse:collapse;width:100%;min-width:980px;font-size:13px;background:#fff}th,td{text-align:left;padding:9px 10px;border-bottom:1px solid #eaecf0;vertical-align:top}th{background:#f8fafc;position:sticky;top:0;z-index:1}
-    .small{font-size:12px;color:var(--muted)}.footer-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.footer-actions button{flex:1 1 160px}.required::after{content:" *";color:var(--danger)}
+    .small{font-size:12px;color:var(--muted)}.capsule-unknown{grid-column:span 2}.measurement-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.measurement-grid input{margin-bottom:0}@media(max-width:520px){.measurement-grid{grid-template-columns:1fr}}.footer-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.footer-actions button{flex:1 1 160px}.required::after{content:" *";color:var(--danger)}
     .lookup-card{background:#f8fafc;border:1px solid #e4e7ec;border-radius:12px;padding:12px;margin-top:12px}
     @media(max-width:420px){h1{font-size:21px}.rows-grid{grid-template-columns:repeat(4,1fr)}button{font-size:15px}}
   </style>
@@ -33,14 +33,36 @@
 <div class="app">
   <h1>Webstercare Medication Measurement Tool</h1>
 
-  <section class="card" id="userCard">
-    <h2>Operator</h2>
-    <label class="required" for="operator">Your name</label>
-    <select id="operator">
+  <section class="card" id="loginCard">
+    <h2>Login</h2>
+
+    <label class="required" for="loginUser">User</label>
+    <select id="loginUser">
       <option value="">Select your name</option>
-      <option>Ian</option><option>Anna</option><option>Vimlesh</option><option>Brett</option><option>Sal</option>
+      <option>Ian</option>
+      <option>Anna</option>
+      <option>Vimlesh</option>
+      <option>Brett</option>
+      <option>Sal</option>
     </select>
-    <button class="primary" id="startBtn">Start New Entry</button>
+
+    <label class="required" for="loginPassword">Password</label>
+    <input id="loginPassword" type="password" autocomplete="current-password" placeholder="Enter password" />
+
+    <button class="primary" id="loginBtn">Login</button>
+    <div class="status" id="loginStatus"></div>
+  </section>
+
+  <section class="card hidden" id="userCard">
+    <h2>Operator</h2>
+    <div class="summary">
+      <div class="summary-item">
+        <div class="summary-label">Logged in as</div>
+        <div class="summary-value" id="loggedInUser"></div>
+      </div>
+    </div>
+    <button class="primary" id="startBtn" style="margin-top:14px;">Start New Entry</button>
+    <button class="secondary" id="logoutBtn" style="width:100%;margin-top:8px;">Logout</button>
   </section>
 
   <section class="card hidden" id="barcodeCard">
@@ -112,6 +134,7 @@
         <button class="choice" data-capsule-size="3">3</button>
         <button class="choice" data-capsule-size="4">4</button>
         <button class="choice" data-capsule-size="5">5</button>
+        <button class="choice capsule-unknown" data-capsule-size="Unknown">Unknown</button>
       </div>
     </div>
 
@@ -123,12 +146,33 @@
       </div>
     </div>
 
+    <div class="hidden" id="coatingOptions" style="margin-top:16px;">
+      <p><strong>Coating?</strong></p>
+      <div class="choice-grid">
+        <button class="choice" data-coating="Yes">Yes</button>
+        <button class="choice" data-coating="No">No</button>
+      </div>
+    </div>
+
+    <div class="hidden" id="markingOptions" style="margin-top:16px;">
+      <label for="markingText"><strong>Marking?</strong></label>
+      <input id="markingText" type="text" autocomplete="off" placeholder="Enter pill marking or imprint" />
+      <button class="secondary" id="confirmMarkingBtn" style="width:100%;">Confirm Marking</button>
+    </div>
+
+    <div class="hidden" id="scoreLineOptions" style="margin-top:16px;">
+      <p><strong>Score Line?</strong></p>
+      <div class="choice-grid">
+        <button class="choice" data-score-line="Yes">Yes</button>
+        <button class="choice" data-score-line="No">No</button>
+      </div>
+    </div>
+
     <div class="hidden" id="tabletOptions" style="margin-top:16px;">
       <p><strong>Shape?</strong></p>
       <div class="choice-grid">
         <button class="choice" data-tablet-shape="Round">Round</button>
         <button class="choice" data-tablet-shape="Oval">Oval</button>
-        <button class="choice" data-tablet-shape="Capsule">Capsule</button>
         <button class="choice" data-tablet-shape="Cylinder">Cylinder</button>
         <button class="choice" data-tablet-shape="Polygon">Polygon</button>
         <button class="choice" data-tablet-shape="Heart">Heart</button>
@@ -171,7 +215,47 @@
       </div>
     </div>
 
-    <button class="primary hidden" id="saveEntryBtn" style="margin-top:18px;">Save Entry</button>
+    <button class="primary hidden" id="saveEntryBtn" style="margin-top:18px;">Continue to Measurements</button>
+  </section>
+
+  <section class="card hidden" id="pillDimensionsCard">
+    <h2>4. Pill Dimensions</h2>
+    <div class="summary" id="pillDimensionsSummary"></div>
+
+    <div id="roundTabletProfile" class="hidden">
+      <p><strong>Round Tablet Profile?</strong></p>
+      <div class="choice-grid">
+        <button class="choice" data-round-profile="Convex">Convex</button>
+        <button class="choice" data-round-profile="Flat">Flat</button>
+        <button class="choice" data-round-profile="Thick">Thick</button>
+      </div>
+    </div>
+
+    <button class="primary hidden" id="continueToMeasurementsBtn2" style="margin-top:18px;">Continue to Measurements</button>
+  </section>
+
+  <section class="card hidden" id="measurementsCard">
+    <h2>5. Measurements</h2>
+    <div class="summary" id="measurementsSummary"></div>
+
+    <p class="small">Enter the medication dimensions in millimetres.</p>
+
+    <div class="measurement-grid">
+      <div>
+        <label for="measureLength">Length (mm)</label>
+        <input id="measureLength" type="number" inputmode="decimal" min="0" step="0.1" placeholder="e.g. 12.5" />
+      </div>
+      <div>
+        <label for="measureWidth">Width (mm)</label>
+        <input id="measureWidth" type="number" inputmode="decimal" min="0" step="0.1" placeholder="e.g. 7.2" />
+      </div>
+      <div>
+        <label for="measureThickness">Thickness (mm)</label>
+        <input id="measureThickness" type="number" inputmode="decimal" min="0" step="0.1" placeholder="e.g. 4.0" />
+      </div>
+    </div>
+
+    <button class="primary" id="saveMeasurementsBtn" style="margin-top:18px;">Save Entry</button>
   </section>
 
   <section class="card hidden" id="savedCard">
@@ -197,7 +281,7 @@
     <div class="table-wrap">
       <table>
         <thead>
-        <tr><th>Operator</th><th>Barcode</th><th>Drug Name</th><th>Strength</th><th>Pill Type</th><th>Pill Detail</th><th>Packaging</th><th>Material</th><th>Rows</th><th>Orientation</th><th>Capture Date</th><th>Finish Time</th></tr>
+        <tr><th>Operator</th><th>Barcode</th><th>Drug Name</th><th>Strength</th><th>Pill Type</th><th>Pill Detail</th><th>Coating</th><th>Marking</th><th>Score Line</th><th>Shape</th><th>Round Profile</th><th>Packaging</th><th>Material</th><th>Rows</th><th>Orientation</th><th>Length (mm)</th><th>Width (mm)</th><th>Thickness (mm)</th><th>Capture Date</th><th>Finish Time</th></tr>
         </thead>
         <tbody id="recordsBody"></tbody>
       </table>
@@ -209,12 +293,24 @@
     <p class="small">Data is stored locally in this browser on this device.</p>
   </section>
 
-  <p class="small" style="text-align:center">App version 6.0</p>
+  <p class="small" style="text-align:center">App version 7.2 — Pill details</p>
 </div>
 
 <script>
 (function(){
   var $ = function(id){ return document.getElementById(id); };
+
+  // Client-side login for the GitHub Pages prototype.
+  // Change these temporary passwords before publishing.
+  var USER_PASSWORDS = {
+    "Ian": "Ian1234",
+    "Anna": "Anna1234",
+    "Vimlesh": "Vimlesh1234",
+    "Brett": "Brett1234",
+    "Sal": "Sal1234"
+  };
+
+  var loggedInUser = "";
 
   // Medication lookup table loaded from medications.json
   var medicationTable = {};
@@ -274,10 +370,18 @@
     pillType:"",
     pillDetailLabel:"",
     pillDetailValue:"",
+    coating:"",
+    marking:"",
+    scoreLine:"",
+    tabletShape:"",
+    roundProfile:"",
     packaging:"",
     material:"",
     rows:"",
     orientation:"",
+    measureLength:"",
+    measureWidth:"",
+    measureThickness:"",
     captureDate:"",
     finishTime:"",
     barcodeReader:null,
@@ -318,6 +422,11 @@
       if(state.pillDetailLabel && state.pillDetailValue){
         h += '<div class="summary-item"><div class="summary-label">'+esc(state.pillDetailLabel)+'</div><div class="summary-value">'+esc(state.pillDetailValue)+'</div></div>';
       }
+      if(state.coating){ h += '<div class="summary-item"><div class="summary-label">Coating</div><div class="summary-value">'+esc(state.coating)+'</div></div>'; }
+      if(state.marking){ h += '<div class="summary-item"><div class="summary-label">Marking</div><div class="summary-value">'+esc(state.marking)+'</div></div>'; }
+      if(state.pillType==="Tablet" && state.scoreLine){ h += '<div class="summary-item"><div class="summary-label">Score Line</div><div class="summary-value">'+esc(state.scoreLine)+'</div></div>'; }
+      if(state.pillType==="Tablet" && state.tabletShape){ h += '<div class="summary-item"><div class="summary-label">Shape</div><div class="summary-value">'+esc(state.tabletShape)+'</div></div>'; }
+      if(state.pillType==="Tablet" && state.tabletShape==="Round" && state.roundProfile){ h += '<div class="summary-item"><div class="summary-label">Round Tablet Profile</div><div class="summary-value">'+esc(state.roundProfile)+'</div></div>'; }
     }
     if(includePackaging && state.packaging){
       h += '<div class="summary-item"><div class="summary-label">Packaging</div><div class="summary-value">'+esc(state.packaging)+'</div></div>';
@@ -336,10 +445,10 @@
   function saveRecords(r){ localStorage.setItem("webstercareMedicationMeasurements", JSON.stringify(r)); }
   function renderRecords(){
     var r=getRecords(), out="", i, x;
-    if(!r.length){ $("recordsBody").innerHTML='<tr><td colspan="12">No measurements stored yet.</td></tr>'; return; }
+    if(!r.length){ $("recordsBody").innerHTML='<tr><td colspan="20">No measurements stored yet.</td></tr>'; return; }
     for(i=0;i<r.length;i++){
       x=r[i];
-      out += "<tr><td>"+esc(x.operator)+"</td><td>"+esc(x.barcode)+"</td><td>"+esc(x.drugName)+"</td><td>"+esc(x.strength)+"</td><td>"+esc(x.pillType||"")+"</td><td>"+esc((x.pillDetailLabel||"")+(x.pillDetailValue?": "+x.pillDetailValue:""))+"</td><td>"+esc(x.packaging)+"</td><td>"+esc(x.material||"")+"</td><td>"+esc(x.rows||"")+"</td><td>"+esc(x.orientation||"")+"</td><td>"+esc(x.captureDate)+"</td><td>"+esc(x.finishTime)+"</td></tr>";
+      out += "<tr><td>"+esc(x.operator)+"</td><td>"+esc(x.barcode)+"</td><td>"+esc(x.drugName)+"</td><td>"+esc(x.strength)+"</td><td>"+esc(x.pillType||"")+"</td><td>"+esc((x.pillDetailLabel||"")+(x.pillDetailValue?": "+x.pillDetailValue:""))+"</td><td>"+esc(x.coating||"")+"</td><td>"+esc(x.marking||"")+"</td><td>"+esc(x.scoreLine||"")+"</td><td>"+esc(x.tabletShape||"")+"</td><td>"+esc(x.roundProfile||"")+"</td><td>"+esc(x.packaging)+"</td><td>"+esc(x.material||"")+"</td><td>"+esc(x.rows||"")+"</td><td>"+esc(x.orientation||"")+"</td><td>"+esc(x.measureLength||"")+"</td><td>"+esc(x.measureWidth||"")+"</td><td>"+esc(x.measureThickness||"")+"</td><td>"+esc(x.captureDate)+"</td><td>"+esc(x.finishTime)+"</td></tr>";
     }
     $("recordsBody").innerHTML=out;
   }
@@ -350,10 +459,10 @@
   }
   function resetEntry(){
     stopBarcodeScan();
-    state.barcode=""; state.drugName=""; state.strength=""; state.pillType=""; state.pillDetailLabel=""; state.pillDetailValue=""; state.packaging=""; state.material=""; state.rows=""; state.orientation="";
+    state.barcode=""; state.drugName=""; state.strength=""; state.pillType=""; state.pillDetailLabel=""; state.pillDetailValue=""; state.coating=""; state.marking=""; state.scoreLine=""; state.tabletShape=""; state.roundProfile=""; state.packaging=""; state.material=""; state.rows=""; state.orientation=""; state.measureLength=""; state.measureWidth=""; state.measureThickness="";
     state.captureDate=dateStr(); state.finishTime="";
-    $("manualBarcode").value=""; $("drugName").value=""; $("strength").value="";
-    hide("manualBarcodeWrap"); hide("lookupResult"); hide("capsuleOptions"); hide("softCapsuleOptions"); hide("tabletOptions"); hide("continueToPackagingBtn"); hide("blisterOptions"); hide("saveEntryBtn");
+    $("manualBarcode").value=""; $("drugName").value=""; $("strength").value=""; $("markingText").value=""; $("measureLength").value=""; $("measureWidth").value=""; $("measureThickness").value="";
+    hide("manualBarcodeWrap"); hide("lookupResult"); hide("capsuleOptions"); hide("softCapsuleOptions"); hide("coatingOptions"); hide("markingOptions"); hide("scoreLineOptions"); hide("tabletOptions"); hide("continueToPackagingBtn"); hide("blisterOptions"); hide("saveEntryBtn"); hide("pillDimensionsCard"); hide("roundTabletProfile"); hide("continueToMeasurementsBtn2");
     hide("barcodeCameraWrap"); hide("barcodeButtons"); show("openBarcodeCameraBtn");
     setStatus("barcodeStatus","");
     var choices=document.querySelectorAll(".choice.selected"), i;
@@ -447,12 +556,56 @@
     });
   }
 
+  $("loginBtn").onclick=function(){
+    var user=$("loginUser").value;
+    var password=$("loginPassword").value;
+
+    if(!user){
+      setStatus("loginStatus","Please select your name.","err");
+      return;
+    }
+    if(USER_PASSWORDS[user] !== password){
+      setStatus("loginStatus","Incorrect password.","err");
+      return;
+    }
+
+    loggedInUser=user;
+    state.operator=user;
+    $("loggedInUser").textContent=user;
+    $("loginPassword").value="";
+    setStatus("loginStatus","");
+    hide("loginCard");
+    show("userCard");
+    window.scrollTo(0,0);
+  };
+
+  $("logoutBtn").onclick=function(){
+    stopBarcodeScan();
+    loggedInUser="";
+    state.operator="";
+    $("loginUser").value="";
+    $("loginPassword").value="";
+    hide("userCard");
+    hide("barcodeCard");
+    hide("confirmCard");
+    hide("pillTypeCard");
+    hide("packagingCard");
+    hide("pillDimensionsCard");
+    hide("measurementsCard");
+    hide("savedCard");
+    show("loginCard");
+    window.scrollTo(0,0);
+  };
+
   $("startBtn").onclick=function(){
-    var op=$("operator").value;
-    if(!op){ alert("Please select your name."); return; }
-    state.operator=op;
+    if(!loggedInUser){
+      hide("userCard");
+      show("loginCard");
+      return;
+    }
+    state.operator=loggedInUser;
     resetEntry();
-    hide("userCard"); hide("savedCard"); hide("confirmCard"); hide("pillTypeCard"); hide("packagingCard"); show("barcodeCard");
+    hide("userCard"); hide("savedCard"); hide("confirmCard"); hide("pillTypeCard"); hide("packagingCard"); hide("pillDimensionsCard"); hide("measurementsCard"); show("barcodeCard");
     if(!medicationTableLoaded){
       setStatus("barcodeStatus","Medication lookup table is still loading. You can open the scanner while it finishes loading.");
     }
@@ -487,26 +640,14 @@
       var all=document.querySelectorAll("[data-pill-type]"), j;
       for(j=0;j<all.length;j++) all[j].classList.remove("selected");
       this.classList.add("selected");
-
       state.pillType=this.getAttribute("data-pill-type");
-      state.pillDetailLabel="";
-      state.pillDetailValue="";
-
-      hide("capsuleOptions");
-      hide("softCapsuleOptions");
-      hide("tabletOptions");
-      hide("continueToPackagingBtn");
-
-      var detailBtns=document.querySelectorAll("[data-capsule-size],[data-soft-clear],[data-tablet-shape]");
-      for(j=0;j<detailBtns.length;j++) detailBtns[j].classList.remove("selected");
-
-      if(state.pillType==="Capsule"){
-        show("capsuleOptions");
-      }else if(state.pillType==="Soft Capsule"){
-        show("softCapsuleOptions");
-      }else if(state.pillType==="Tablet"){
-        show("tabletOptions");
-      }
+      state.pillDetailLabel=""; state.pillDetailValue="";
+      state.coating=""; state.marking=""; state.scoreLine=""; state.tabletShape=""; state.roundProfile="";
+      hide("capsuleOptions"); hide("softCapsuleOptions"); hide("coatingOptions"); hide("markingOptions"); hide("scoreLineOptions"); hide("tabletOptions"); hide("continueToPackagingBtn");
+      $("markingText").value="";
+      if(state.pillType==="Capsule") show("capsuleOptions");
+      else if(state.pillType==="Soft Capsule") show("softCapsuleOptions");
+      else if(state.pillType==="Tablet") show("coatingOptions");
     };
   }
 
@@ -518,7 +659,7 @@
       this.classList.add("selected");
       state.pillDetailLabel="Capsule Size";
       state.pillDetailValue=this.getAttribute("data-capsule-size");
-      show("continueToPackagingBtn");
+      show("coatingOptions");
     };
   }
 
@@ -530,7 +671,36 @@
       this.classList.add("selected");
       state.pillDetailLabel="Clear";
       state.pillDetailValue=this.getAttribute("data-soft-clear");
-      show("continueToPackagingBtn");
+      show("coatingOptions");
+    };
+  }
+
+  var coatingBtns=document.querySelectorAll("[data-coating]");
+  for(i=0;i<coatingBtns.length;i++){
+    coatingBtns[i].onclick=function(){
+      var all=document.querySelectorAll("[data-coating]"), j;
+      for(j=0;j<all.length;j++) all[j].classList.remove("selected");
+      this.classList.add("selected");
+      state.coating=this.getAttribute("data-coating");
+      show("markingOptions");
+    };
+  }
+
+  $("confirmMarkingBtn").onclick=function(){
+    state.marking=$("markingText").value.replace(/^\s+|\s+$/g,"");
+    if(!state.marking){ alert("Please enter the pill marking."); return; }
+    if(state.pillType==="Tablet") show("scoreLineOptions");
+    else show("continueToPackagingBtn");
+  };
+
+  var scoreBtns=document.querySelectorAll("[data-score-line]");
+  for(i=0;i<scoreBtns.length;i++){
+    scoreBtns[i].onclick=function(){
+      var all=document.querySelectorAll("[data-score-line]"), j;
+      for(j=0;j<all.length;j++) all[j].classList.remove("selected");
+      this.classList.add("selected");
+      state.scoreLine=this.getAttribute("data-score-line");
+      show("tabletOptions");
     };
   }
 
@@ -540,21 +710,19 @@
       var all=document.querySelectorAll("[data-tablet-shape]"), j;
       for(j=0;j<all.length;j++) all[j].classList.remove("selected");
       this.classList.add("selected");
+      state.tabletShape=this.getAttribute("data-tablet-shape");
       state.pillDetailLabel="Shape";
-      state.pillDetailValue=this.getAttribute("data-tablet-shape");
+      state.pillDetailValue=state.tabletShape;
       show("continueToPackagingBtn");
     };
   }
 
   $("continueToPackagingBtn").onclick=function(){
-    if(!state.pillType || !state.pillDetailValue){
-      alert("Please complete the Pill Type details.");
-      return;
-    }
+    if(!state.pillType || !state.coating || !state.marking){ alert("Please complete Pill Type, Coating and Marking."); return; }
+    if(state.pillType==="Tablet" && (!state.scoreLine || !state.tabletShape)){ alert("Please complete Score Line and Shape."); return; }
+    if((state.pillType==="Capsule" || state.pillType==="Soft Capsule") && !state.pillDetailValue){ alert("Please complete the pill type details."); return; }
     $("packagingSummary").innerHTML=summaryHtml(false);
-    hide("pillTypeCard");
-    show("packagingCard");
-    window.scrollTo(0,0);
+    hide("pillTypeCard"); show("packagingCard"); window.scrollTo(0,0);
   };
 
   var pBtns=document.querySelectorAll("[data-packaging]");
@@ -601,18 +769,84 @@
   }
 
   $("saveEntryBtn").onclick=function(){
+    $("pillDimensionsSummary").innerHTML=summaryHtml(true);
+    hide("packagingCard");
+    show("pillDimensionsCard");
+    state.roundProfile="";
+    var roundBtns=document.querySelectorAll("[data-round-profile]"), j;
+    for(j=0;j<roundBtns.length;j++) roundBtns[j].classList.remove("selected");
+    if(state.pillType==="Tablet" && state.tabletShape==="Round"){
+      show("roundTabletProfile");
+      hide("continueToMeasurementsBtn2");
+    }else{
+      hide("roundTabletProfile");
+      show("continueToMeasurementsBtn2");
+    }
+    window.scrollTo(0,0);
+  };
+
+  var rpBtns=document.querySelectorAll("[data-round-profile]");
+  for(i=0;i<rpBtns.length;i++){
+    rpBtns[i].onclick=function(){
+      var all=document.querySelectorAll("[data-round-profile]"), j;
+      for(j=0;j<all.length;j++) all[j].classList.remove("selected");
+      this.classList.add("selected");
+      state.roundProfile=this.getAttribute("data-round-profile");
+      show("continueToMeasurementsBtn2");
+    };
+  }
+
+  $("continueToMeasurementsBtn2").onclick=function(){
+    if(state.pillType==="Tablet" && state.tabletShape==="Round" && !state.roundProfile){
+      alert("Please select Convex, Flat or Thick.");
+      return;
+    }
+    $("measurementsSummary").innerHTML=summaryHtml(true);
+    hide("pillDimensionsCard");
+    show("measurementsCard");
+    window.scrollTo(0,0);
+  };
+
+  $("saveMeasurementsBtn").onclick=function(){
+    state.measureLength=$("measureLength").value;
+    state.measureWidth=$("measureWidth").value;
+    state.measureThickness=$("measureThickness").value;
+
+    if(!state.measureLength || !state.measureWidth || !state.measureThickness){
+      alert("Please enter Length, Width and Thickness.");
+      return;
+    }
+
     state.finishTime=timeStr();
     var rec={
-      operator:state.operator, barcode:state.barcode, drugName:state.drugName, strength:state.strength, pillType:state.pillType, pillDetailLabel:state.pillDetailLabel, pillDetailValue:state.pillDetailValue,
-      packaging:state.packaging, material:state.packaging==="Blister"?state.material:"",
-      rows:state.packaging==="Blister"?state.rows:"", orientation:state.packaging==="Blister"?state.orientation:"", captureDate:state.captureDate, finishTime:state.finishTime
+      operator:state.operator,
+      barcode:state.barcode,
+      drugName:state.drugName,
+      strength:state.strength,
+      pillType:state.pillType,
+      pillDetailLabel:state.pillDetailLabel,
+      pillDetailValue:state.pillDetailValue,
+      packaging:state.packaging,
+      material:state.packaging==="Blister"?state.material:"",
+      rows:state.packaging==="Blister"?state.rows:"",
+      orientation:state.packaging==="Blister"?state.orientation:"",
+      measureLength:state.measureLength,
+      measureWidth:state.measureWidth,
+      measureThickness:state.measureThickness,
+      captureDate:state.captureDate,
+      finishTime:state.finishTime
     };
     var records=getRecords(); records.push(rec); saveRecords(records); renderRecords();
+
     $("savedSummary").innerHTML=summaryHtml(true)+
+      '<div class="summary-item"><div class="summary-label">Length (mm)</div><div class="summary-value">'+esc(state.measureLength)+'</div></div>'+
+      '<div class="summary-item"><div class="summary-label">Width (mm)</div><div class="summary-value">'+esc(state.measureWidth)+'</div></div>'+
+      '<div class="summary-item"><div class="summary-label">Thickness (mm)</div><div class="summary-value">'+esc(state.measureThickness)+'</div></div>'+
       '<div class="summary-item"><div class="summary-label">Operator</div><div class="summary-value">'+esc(state.operator)+'</div></div>'+
       '<div class="summary-item"><div class="summary-label">Capture Date</div><div class="summary-value">'+esc(state.captureDate)+'</div></div>'+
       '<div class="summary-item"><div class="summary-label">Finish Time</div><div class="summary-value">'+esc(state.finishTime)+'</div></div>';
-    hide("packagingCard"); show("savedCard"); window.scrollTo(0,0);
+
+    hide("measurementsCard"); show("savedCard"); window.scrollTo(0,0);
   };
 
   $("newEntryBtn").onclick=function(){
@@ -622,8 +856,8 @@
   $("exportCsvBtn").onclick=function(){
     var records=getRecords();
     if(!records.length){ alert("There are no stored measurements to export."); return; }
-    var headers=["Operator","Barcode","Drug Name","Strength","Pill Type","Pill Detail Label","Pill Detail Value","Packaging","Material","Rows","Orientation","Capture Date","Finish Time"];
-    var keys=["operator","barcode","drugName","strength","pillType","pillDetailLabel","pillDetailValue","packaging","material","rows","orientation","captureDate","finishTime"];
+    var headers=["Operator","Barcode","Drug Name","Strength","Pill Type","Pill Detail Label","Pill Detail Value","Coating","Marking","Score Line","Shape","Round Profile","Packaging","Material","Rows","Orientation","Length (mm)","Width (mm)","Thickness (mm)","Capture Date","Finish Time"];
+    var keys=["operator","barcode","drugName","strength","pillType","pillDetailLabel","pillDetailValue","coating","marking","scoreLine","tabletShape","roundProfile","packaging","material","rows","orientation","measureLength","measureWidth","measureThickness","captureDate","finishTime"];
     function q(v){ return '"'+String(v==null?"":v).replace(/"/g,'""')+'"'; }
     var lines=[headers.map(q).join(",")], i,j,row;
     for(i=0;i<records.length;i++){

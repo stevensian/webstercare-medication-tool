@@ -1,76 +1,47 @@
-# Webstercare Medication Measurement Tool v6
+# Webstercare Medication Measurement Tool v7
 
-The medication lookup data is now stored in a separate JSON file:
+## Changes in v7
 
-`medications.json`
+- Removed `Capsule` from Tablet -> Shape.
+- Added `Unknown` after capsule size 5.
+- `Unknown` spans the two remaining spaces beside capsule sizes 4 and 5.
+- Added Part 4: Measurements:
+  - Length (mm)
+  - Width (mm)
+  - Thickness (mm)
+- Measurements are stored in the local results table and CSV export.
 
-Example:
-
-```json
-[
-  {
-    "barcode": "9322147031008",
-    "drugName": "Cartia",
-    "strength": "100mg"
-  }
-]
-```
-
-To add more medication records, add another object separated by a comma, for example:
-
-```json
-[
-  {
-    "barcode": "9322147031008",
-    "drugName": "Cartia",
-    "strength": "100mg"
-  },
-  {
-    "barcode": "1234567890128",
-    "drugName": "Example Drug",
-    "strength": "20mg"
-  }
-]
-```
-
-The app loads `medications.json` when it starts. You do not need to edit `index.html` when adding medication records.
-
-Workflow:
-1. Select operator.
-2. Scan EAN-13 barcode.
-3. App looks up barcode in `medications.json`.
-4. Displays Barcode, Drug Name and Strength.
-5. User confirms/corrects details.
-6. Select Bottle or Blister.
-7. If Blister, select Material and Rows 1-8.
-8. Save the record.
+Medication lookup data remains in `medications.json`.
 
 
-## New in v6
-For Blister packaging only, after selecting Rows the user must select:
+## v7.1 Login screen
 
-- Orientation: Straight
-- Orientation: Diagonal
+The app now requires:
+1. Select a user.
+2. Enter that user's password.
+3. Press Login.
+4. The app then shows Start New Entry.
 
-Orientation is saved in the stored measurement table and included in CSV export.
+Temporary passwords included in this build:
+
+- Ian — `Ian1234`
+- Anna — `Anna1234`
+- Vimlesh — `Vimlesh1234`
+- Brett — `Brett1234`
+- Sal — `Sal1234`
+
+Change these by editing the `USER_PASSWORDS` section in `index.html`.
+
+### Security limitation
+
+This is only a simple access barrier for a static GitHub Pages prototype. The password values exist in client-side source code and can be discovered by someone deliberately inspecting the site's files. Do not treat this as secure authentication for confidential data. Microsoft Entra ID / Azure Static Web Apps should be used for the production version.
 
 
-## New in v6 — Pill Type
-
-Before Packaging, the app asks:
-
-### Pill Type?
-- Capsule
-- Soft Capsule
-- Tablet
-
-If Capsule:
-- Capsule Size: 000, 0E, 00, 0, 1E, 1, 2, 3, 4, 5
-
-If Soft Capsule:
-- Clear?: Yes / No
-
-If Tablet:
-- Shape: Round, Oval, Capsule, Cylinder, Polygon, Heart, Other
-
-Both Pill Type and its related detail are stored in the measurement table and CSV export.
+## v7.2
+- Added Coating? Yes/No after Pill Type.
+- Added Marking? free-text entry.
+- Tablet only: Score Line? Yes/No, then Shape.
+- Added Part 4: Pill Dimensions after Packaging.
+- Tablet + Round only: Round Tablet Profile = Convex, Flat, or Thick.
+- Existing numeric Length/Width/Thickness section is now Part 5.
+- All new fields are stored and exported to CSV.
