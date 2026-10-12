@@ -24,7 +24,7 @@
     .scan-guide{position:absolute;left:8%;right:8%;top:34%;height:32%;border:3px solid rgba(255,255,255,.9);border-radius:12px;pointer-events:none;box-shadow:0 0 0 9999px rgba(0,0,0,.18)}
     .status{font-size:14px;color:var(--muted);margin:6px 0 12px;min-height:20px}.status.ok{color:var(--success);font-weight:650}.status.err{color:var(--danger);font-weight:650}
     .table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px}table{border-collapse:collapse;width:100%;min-width:980px;font-size:13px;background:#fff}th,td{text-align:left;padding:9px 10px;border-bottom:1px solid #eaecf0;vertical-align:top}th{background:#f8fafc;position:sticky;top:0;z-index:1}
-    .small{font-size:12px;color:var(--muted)}.section-title-row{display:flex;align-items:center;justify-content:space-between;gap:12px}.collapse-toggle{min-width:46px;width:46px;padding:6px;font-size:22px;line-height:1;background:#eef2f6;color:var(--text)}.lookup-search-row{display:flex;gap:8px;align-items:center;margin-bottom:12px}.lookup-search-row input{margin-bottom:0;flex:1}.lookup-search-row button{flex:0 0 auto}.lookup-empty{padding:14px;color:var(--muted);text-align:center}.capsule-unknown{grid-column:span 2}.measurement-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.measurement-grid input{margin-bottom:0}@media(max-width:520px){.measurement-grid{grid-template-columns:1fr}}.footer-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.footer-actions button{flex:1 1 160px}.required::after{content:" *";color:var(--danger)}
+    .small{font-size:12px;color:var(--muted)}.section-title-row{display:flex;align-items:center;justify-content:space-between;gap:12px}.ai-title-row{display:flex;align-items:center;justify-content:space-between;gap:10px}.ai-capture-btn{background:#111827;color:#fff;white-space:nowrap}.ai-result{background:#f8fafc;border:1px solid #e4e7ec;border-radius:12px;padding:12px;margin-top:12px}.ai-camera-note{font-size:12px;color:var(--muted);margin:8px 0}.ai-card-guide{position:absolute;left:8%;right:8%;top:14%;bottom:14%;border:3px solid #fff;border-radius:4px;box-shadow:0 0 0 9999px rgba(0,0,0,.22);pointer-events:none}.ai-card-title{position:absolute;top:8%;left:0;right:0;text-align:center;color:#fff;font-size:12px;font-weight:700;pointer-events:none}.collapse-toggle{min-width:46px;width:46px;padding:6px;font-size:22px;line-height:1;background:#eef2f6;color:var(--text)}.lookup-search-row{display:flex;gap:8px;align-items:center;margin-bottom:12px}.lookup-search-row input{margin-bottom:0;flex:1}.lookup-search-row button{flex:0 0 auto}.lookup-empty{padding:14px;color:var(--muted);text-align:center}.capsule-unknown{grid-column:span 2}.measurement-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.measurement-grid input{margin-bottom:0}@media(max-width:520px){.measurement-grid{grid-template-columns:1fr}}.footer-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.footer-actions button{flex:1 1 160px}.required::after{content:" *";color:var(--danger)}
     .lookup-card{background:#f8fafc;border:1px solid #e4e7ec;border-radius:12px;padding:12px;margin-top:12px}
     @media(max-width:420px){h1{font-size:21px}.rows-grid{grid-template-columns:repeat(4,1fr)}button{font-size:15px}}
   </style>
@@ -111,8 +111,43 @@
   </section>
 
   <section class="card hidden" id="pillTypeCard">
-    <h2>2. Pill Type</h2>
-    <div class="summary" id="pillTypeSummary"></div>
+    <div class="ai-title-row">
+      <h2 style="margin:0;">2. Pill Type</h2>
+      <button class="ai-capture-btn" id="aiCaptureBtn">AI Capture</button>
+    </div>
+
+    <div class="summary" id="pillTypeSummary" style="margin-top:12px;"></div>
+
+    <div id="aiCapturePanel" class="hidden" style="margin-top:14px;">
+      <p class="ai-camera-note">
+        Use the Webstercare - Medication Capture Card. Place the pill at the graph origin,
+        keep the entire 30 mm × 30 mm black square visible, and hold the phone as square to the card as possible.
+      </p>
+
+      <div class="camera-wrap hidden" id="aiCameraWrap">
+        <video id="aiVideo" playsinline autoplay muted></video>
+        <div class="ai-card-guide"></div>
+        <div class="ai-card-title">Webstercare - Medication Capture Card</div>
+      </div>
+
+      <button class="primary" id="openAiCameraBtn">Open Camera</button>
+
+      <div class="button-row hidden" id="aiCameraButtons" style="margin-top:10px;">
+        <button class="success" id="captureAiPhotoBtn">Take Photo</button>
+        <button class="secondary" id="cancelAiCameraBtn">Cancel</button>
+      </div>
+
+      <canvas id="aiCanvas" class="preview hidden"></canvas>
+      <div class="status" id="aiStatus"></div>
+
+      <div id="aiResult" class="ai-result hidden">
+        <strong>AI Capture Result</strong>
+        <div class="summary" id="aiResultSummary" style="margin-top:8px;"></div>
+        <p class="small">
+          Estimated values must be checked by the operator before continuing.
+        </p>
+      </div>
+    </div>
 
     <p><strong>Pill Type?</strong></p>
     <div class="choice-grid">
@@ -323,7 +358,7 @@
     <p class="small">Data is stored locally in this browser on this device.</p>
   </section>
 
-  <p class="small" style="text-align:center">App version 7.7 - Copyright Webstercare 2026.</p>
+  <p class="small" style="text-align:center">App version 7.8 - Copyright Webstercare 2026.</p>
 </div>
 
 <script>
@@ -437,7 +472,8 @@
     captureDate:"",
     finishTime:"",
     barcodeReader:null,
-    scanActive:false
+    scanActive:false,
+    aiStream:null
   };
 
   function show(id){ $(id).classList.remove("hidden"); }
@@ -510,11 +546,12 @@
     state.barcodeReader=null;
   }
   function resetEntry(){
+    stopAiCamera();
     stopBarcodeScan();
     state.barcode=""; state.drugName=""; state.strength=""; state.pillType=""; state.pillDetailLabel=""; state.pillDetailValue=""; state.coating=""; state.marking=""; state.scoreLine=""; state.tabletShape=""; state.roundProfile=""; state.packaging=""; state.material=""; state.rows=""; state.orientation=""; state.measureHeight=""; state.measureWidth=""; state.measureThickness=""; state.measureDiagonal="";
     state.captureDate=dateStr(); state.finishTime="";
     $("manualBarcode").value=""; $("drugName").value=""; $("strength").value=""; $("markingText").value=""; $("noMarkingBtn").classList.remove("selected"); $("measureHeight").value=""; $("measureWidth").value=""; $("measureThickness").value=""; $("measureDiagonal").value=""; hide("measureDiagonalWrap");
-    hide("manualBarcodeWrap"); hide("lookupResult"); hide("capsuleOptions"); hide("softCapsuleOptions"); hide("coatingOptions"); hide("markingOptions"); hide("scoreLineOptions"); hide("tabletOptions"); hide("continueToPackagingBtn"); hide("blisterOptions"); hide("saveEntryBtn"); hide("pillDimensionsCard"); hide("roundTabletProfile"); hide("continueToMeasurementsBtn2");
+    hide("manualBarcodeWrap"); hide("lookupResult"); hide("aiCapturePanel"); hide("aiCameraWrap"); hide("aiCameraButtons"); hide("aiResult"); show("openAiCameraBtn"); setStatus("aiStatus",""); hide("capsuleOptions"); hide("softCapsuleOptions"); hide("coatingOptions"); hide("markingOptions"); hide("scoreLineOptions"); hide("tabletOptions"); hide("continueToPackagingBtn"); hide("blisterOptions"); hide("saveEntryBtn"); hide("pillDimensionsCard"); hide("roundTabletProfile"); hide("continueToMeasurementsBtn2");
     hide("barcodeCameraWrap"); hide("barcodeButtons"); show("openBarcodeCameraBtn");
     setStatus("barcodeStatus","");
     var choices=document.querySelectorAll(".choice.selected"), i;
@@ -571,6 +608,310 @@
         window.scrollTo(0,0);
       }, 500);
     }
+  }
+
+
+  function stopAiCamera(){
+    if(state.aiStream){
+      state.aiStream.getTracks().forEach(function(t){ t.stop(); });
+    }
+    state.aiStream=null;
+  }
+
+  function getRearCamera(){
+    return navigator.mediaDevices.getUserMedia({
+      video:{
+        facingMode:{ideal:"environment"},
+        width:{ideal:1920},
+        height:{ideal:1080}
+      },
+      audio:false
+    });
+  }
+
+  function loadOpenCV(cb){
+    if(window.cv && window.cv.Mat){
+      cb();
+      return;
+    }
+
+    var existing=document.querySelector('script[data-opencv="1"]');
+    if(existing){
+      var wait=function(){
+        if(window.cv && window.cv.Mat){ cb(); }
+        else setTimeout(wait,100);
+      };
+      wait();
+      return;
+    }
+
+    var s=document.createElement("script");
+    s.src="https://docs.opencv.org/4.x/opencv.js";
+    s.async=true;
+    s.setAttribute("data-opencv","1");
+    s.onload=function(){
+      var wait=function(){
+        if(window.cv && window.cv.Mat){ cb(); }
+        else setTimeout(wait,100);
+      };
+      wait();
+    };
+    s.onerror=function(){
+      setStatus("aiStatus","Image-analysis library could not load. Enter the pill details manually.","err");
+    };
+    document.head.appendChild(s);
+  }
+
+  function orderQuadPoints(points){
+    // points: [{x,y} x4]
+    var sorted=points.slice().sort(function(a,b){return (a.x+a.y)-(b.x+b.y);});
+    var tl=sorted[0], br=sorted[3];
+    var rem=[sorted[1],sorted[2]];
+    var tr,bl;
+    if(rem[0].x>rem[1].x){ tr=rem[0]; bl=rem[1]; }
+    else{ tr=rem[1]; bl=rem[0]; }
+    return [tl,tr,br,bl];
+  }
+
+  function pillTypeSuggestion(longMM,shortMM,circularity,brightnessStd){
+    var aspect=longMM/Math.max(shortMM,0.01);
+
+    // Geometry-led classification. Soft capsule can only be suggested, not confirmed.
+    if(aspect>=1.55){
+      if(brightnessStd>35){
+        return {type:"Soft Capsule",confidence:"Low"};
+      }
+      return {type:"Capsule",confidence:"Medium"};
+    }
+
+    return {type:"Tablet",confidence:"Medium"};
+  }
+
+  function analyseCaptureCard(){
+    setStatus("aiStatus","Detecting the 30 mm capture square...");
+
+    loadOpenCV(function(){
+      var src,gray,blur,edges,contours,hierarchy;
+      try{
+        var canvas=$("aiCanvas");
+        src=cv.imread(canvas);
+        gray=new cv.Mat();
+        blur=new cv.Mat();
+        edges=new cv.Mat();
+        contours=new cv.MatVector();
+        hierarchy=new cv.Mat();
+
+        cv.cvtColor(src,gray,cv.COLOR_RGBA2GRAY);
+        cv.GaussianBlur(gray,blur,new cv.Size(5,5),0);
+        cv.Canny(blur,edges,45,140);
+        cv.findContours(edges,contours,hierarchy,cv.RETR_LIST,cv.CHAIN_APPROX_SIMPLE);
+
+        var best=null;
+        var bestArea=0;
+
+        for(var i=0;i<contours.size();i++){
+          var c=contours.get(i);
+          var area=cv.contourArea(c);
+          if(area < src.rows*src.cols*0.04){
+            c.delete();
+            continue;
+          }
+
+          var peri=cv.arcLength(c,true);
+          var approx=new cv.Mat();
+          cv.approxPolyDP(c,approx,0.025*peri,true);
+
+          if(approx.rows===4 && area>bestArea){
+            var pts=[];
+            for(var k=0;k<4;k++){
+              pts.push({
+                x:approx.intPtr(k,0)[0],
+                y:approx.intPtr(k,0)[1]
+              });
+            }
+
+            var ordered=orderQuadPoints(pts);
+            var top=Math.hypot(ordered[1].x-ordered[0].x,ordered[1].y-ordered[0].y);
+            var bottom=Math.hypot(ordered[2].x-ordered[3].x,ordered[2].y-ordered[3].y);
+            var left=Math.hypot(ordered[3].x-ordered[0].x,ordered[3].y-ordered[0].y);
+            var right=Math.hypot(ordered[2].x-ordered[1].x,ordered[2].y-ordered[1].y);
+
+            var rw=(top+bottom)/2;
+            var rh=(left+right)/2;
+            var ratio=rw/Math.max(rh,1);
+
+            // Capture area is square; allow perspective error.
+            if(ratio>0.70 && ratio<1.30){
+              best={points:ordered,area:area};
+              bestArea=area;
+            }
+          }
+
+          approx.delete();
+          c.delete();
+        }
+
+        if(!best){
+          throw new Error("The 30 mm × 30 mm black capture square was not detected. Keep the full black square visible and retake the photo.");
+        }
+
+        // Rectify the known 30 x 30 mm square.
+        // 900 x 900 px -> exactly 30 px/mm.
+        var dstSize=900;
+        var ordered=best.points;
+
+        var srcTri=cv.matFromArray(4,1,cv.CV_32FC2,[
+          ordered[0].x,ordered[0].y,
+          ordered[1].x,ordered[1].y,
+          ordered[2].x,ordered[2].y,
+          ordered[3].x,ordered[3].y
+        ]);
+
+        var dstTri=cv.matFromArray(4,1,cv.CV_32FC2,[
+          0,0,
+          dstSize-1,0,
+          dstSize-1,dstSize-1,
+          0,dstSize-1
+        ]);
+
+        var M=cv.getPerspectiveTransform(srcTri,dstTri);
+        var warped=new cv.Mat();
+        cv.warpPerspective(src,warped,M,new cv.Size(dstSize,dstSize),cv.INTER_LINEAR,cv.BORDER_CONSTANT,new cv.Scalar());
+
+        var wgray=new cv.Mat();
+        cv.cvtColor(warped,wgray,cv.COLOR_RGBA2GRAY);
+
+        // Suppress grid using morphology; isolate the larger solid pill body.
+        var binary=new cv.Mat();
+        cv.threshold(wgray,binary,0,255,cv.THRESH_BINARY_INV+cv.THRESH_OTSU);
+
+        var lineKernelH=cv.getStructuringElement(cv.MORPH_RECT,new cv.Size(31,1));
+        var lineKernelV=cv.getStructuringElement(cv.MORPH_RECT,new cv.Size(1,31));
+        var horizontal=new cv.Mat();
+        var vertical=new cv.Mat();
+
+        cv.morphologyEx(binary,horizontal,cv.MORPH_OPEN,lineKernelH);
+        cv.morphologyEx(binary,vertical,cv.MORPH_OPEN,lineKernelV);
+
+        var grid=new cv.Mat();
+        cv.bitwise_or(horizontal,vertical,grid);
+
+        var nongrid=new cv.Mat();
+        cv.subtract(binary,grid,nongrid);
+
+        var closeKernel=cv.getStructuringElement(cv.MORPH_ELLIPSE,new cv.Size(11,11));
+        cv.morphologyEx(nongrid,nongrid,cv.MORPH_CLOSE,closeKernel);
+
+        var pcs=new cv.MatVector();
+        var ph=new cv.Mat();
+        cv.findContours(nongrid,pcs,ph,cv.RETR_EXTERNAL,cv.CHAIN_APPROX_SIMPLE);
+
+        var bestPill=null;
+        var bestPillArea=0;
+
+        // Pill starts near origin (lower-left of card).
+        // Accept candidates in left half / lower half of rectified square.
+        for(var j=0;j<pcs.size();j++){
+          var pc=pcs.get(j);
+          var pa=cv.contourArea(pc);
+          var pr=cv.boundingRect(pc);
+
+          if(pa>bestPillArea &&
+             pa>dstSize*dstSize*0.002 &&
+             pa<dstSize*dstSize*0.30 &&
+             pr.x < dstSize*0.55 &&
+             (pr.y+pr.height) > dstSize*0.40){
+            var perimeter=cv.arcLength(pc,true);
+            var circ=perimeter>0 ? (4*Math.PI*pa)/(perimeter*perimeter) : 0;
+            bestPill={rect:pr,contour:pc.clone(),circularity:circ};
+            bestPillArea=pa;
+          }
+
+          pc.delete();
+        }
+
+        if(!bestPill){
+          throw new Error("The card was detected, but the tablet/capsule could not be isolated. Place it clearly at the graph origin and retake the photo.");
+        }
+
+        var pxPerMM=dstSize/30.0;
+        var mmA=bestPill.rect.width/pxPerMM;
+        var mmB=bestPill.rect.height/pxPerMM;
+        var longMM=Math.max(mmA,mmB);
+        var shortMM=Math.min(mmA,mmB);
+
+        // Simple contrast/texture proxy to distinguish glossy/translucent object from matte tablet.
+        var roi=wgray.roi(bestPill.rect);
+        var mean=new cv.Mat();
+        var stddev=new cv.Mat();
+        cv.meanStdDev(roi,mean,stddev);
+        var brightnessStd=stddev.doubleAt(0,0);
+
+        var cls=pillTypeSuggestion(longMM,shortMM,bestPill.circularity,brightnessStd);
+
+        state.pillType=cls.type;
+        state.measureHeight=longMM.toFixed(2);
+        state.measureWidth=shortMM.toFixed(2);
+
+        // Update displayed choices.
+        var pBtns=document.querySelectorAll("[data-pill-type]");
+        for(var z=0;z<pBtns.length;z++){
+          pBtns[z].classList.remove("selected");
+          if(pBtns[z].getAttribute("data-pill-type")===state.pillType){
+            pBtns[z].classList.add("selected");
+          }
+        }
+
+        $("measureHeight").value=state.measureHeight;
+        $("measureWidth").value=state.measureWidth;
+
+        // Continue normal workflow from the suggested type.
+        hide("capsuleOptions");
+        hide("softCapsuleOptions");
+        hide("coatingOptions");
+        hide("markingOptions");
+        hide("scoreLineOptions");
+        hide("tabletOptions");
+        hide("continueToPackagingBtn");
+
+        if(state.pillType==="Capsule"){
+          show("capsuleOptions");
+        }else if(state.pillType==="Soft Capsule"){
+          show("softCapsuleOptions");
+        }else{
+          show("coatingOptions");
+        }
+
+        $("aiResultSummary").innerHTML=
+          '<div class="summary-item"><div class="summary-label">Suggested Pill Type</div><div class="summary-value">'+esc(state.pillType)+'</div></div>'+
+          '<div class="summary-item"><div class="summary-label">Type Confidence</div><div class="summary-value">'+esc(cls.confidence)+'</div></div>'+
+          '<div class="summary-item"><div class="summary-label">Estimated Height</div><div class="summary-value">'+esc(state.measureHeight)+' mm</div></div>'+
+          '<div class="summary-item"><div class="summary-label">Estimated Width</div><div class="summary-value">'+esc(state.measureWidth)+' mm</div></div>';
+
+        show("aiResult");
+        setStatus("aiStatus","Capture analysed using the 30 mm × 30 mm reference square. Check the results before continuing.","ok");
+
+        // cleanup
+        roi.delete(); mean.delete(); stddev.delete();
+        bestPill.contour.delete();
+        srcTri.delete(); dstTri.delete(); M.delete(); warped.delete(); wgray.delete();
+        binary.delete(); lineKernelH.delete(); lineKernelV.delete();
+        horizontal.delete(); vertical.delete(); grid.delete(); nongrid.delete();
+        closeKernel.delete(); pcs.delete(); ph.delete();
+        src.delete(); gray.delete(); blur.delete(); edges.delete(); contours.delete(); hierarchy.delete();
+
+      }catch(e){
+        console.error(e);
+        setStatus("aiStatus",e.message || "AI Capture analysis failed. Retake the image or enter the values manually.","err");
+
+        try{ if(src)src.delete(); }catch(_){}
+        try{ if(gray)gray.delete(); }catch(_){}
+        try{ if(blur)blur.delete(); }catch(_){}
+        try{ if(edges)edges.delete(); }catch(_){}
+        try{ if(contours)contours.delete(); }catch(_){}
+        try{ if(hierarchy)hierarchy.delete(); }catch(_){}
+      }
+    });
   }
 
   function beginBarcodeScan(){
@@ -685,6 +1026,73 @@
     hide("confirmCard"); show("pillTypeCard"); window.scrollTo(0,0);
   };
 
+
+
+  $("aiCaptureBtn").onclick=function(){
+    if($("aiCapturePanel").classList.contains("hidden")){
+      show("aiCapturePanel");
+      setStatus("aiStatus",'Use the 30 mm × 30 mm Webstercare Medication Capture Card shown in your reference.');
+    }else{
+      stopAiCamera();
+      hide("aiCapturePanel");
+      hide("aiCameraWrap");
+      hide("aiCameraButtons");
+      show("openAiCameraBtn");
+    }
+  };
+
+  $("openAiCameraBtn").onclick=function(){
+    setStatus("aiStatus","Opening rear camera...");
+    getRearCamera().then(function(stream){
+      state.aiStream=stream;
+      $("aiVideo").srcObject=stream;
+      show("aiCameraWrap");
+      show("aiCameraButtons");
+      hide("openAiCameraBtn");
+      setStatus("aiStatus","Fit the full black 30 mm square inside the camera guide.");
+    }).catch(function(e){
+      console.error(e);
+      setStatus("aiStatus","Camera access failed. Check Safari Camera permission and that the app is running over HTTPS.","err");
+    });
+  };
+
+  $("cancelAiCameraBtn").onclick=function(){
+    stopAiCamera();
+    hide("aiCameraWrap");
+    hide("aiCameraButtons");
+    show("openAiCameraBtn");
+    setStatus("aiStatus","");
+  };
+
+  $("captureAiPhotoBtn").onclick=function(){
+    var video=$("aiVideo");
+    if(!video.videoWidth){
+      setStatus("aiStatus","Camera image is not ready yet.","err");
+      return;
+    }
+
+    var canvas=$("aiCanvas");
+    var w=video.videoWidth;
+    var h=video.videoHeight;
+    var maxW=1600;
+
+    if(w>maxW){
+      h=Math.round(h*maxW/w);
+      w=maxW;
+    }
+
+    canvas.width=w;
+    canvas.height=h;
+    canvas.getContext("2d").drawImage(video,0,0,w,h);
+
+    stopAiCamera();
+    hide("aiCameraWrap");
+    hide("aiCameraButtons");
+    show("openAiCameraBtn");
+    show("aiCanvas");
+
+    analyseCaptureCard();
+  };
 
   var ptBtns=document.querySelectorAll("[data-pill-type]"), i;
   for(i=0;i<ptBtns.length;i++){

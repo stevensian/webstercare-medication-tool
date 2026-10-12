@@ -99,3 +99,26 @@ When `None` is selected, the stored/exported Marking value is `None`.
 - Expanded view contains a search field and Search button.
 - Search matches Barcode, Drug Name, or Strength.
 - Clearing the search restores the full lookup table.
+
+
+## v7.8 AI Capture using Webstercare Medication Capture Card
+
+The AI Capture feature now assumes the supplied card design:
+
+- outer black capture square = 30 mm x 30 mm
+- graph origin at the lower-left
+- 1 mm grid
+- tablet/capsule placed at the origin
+
+The image-processing pipeline:
+1. detects the outer black square;
+2. finds its four corners;
+3. perspective-corrects the square to a 900 x 900 pixel image;
+4. maps 900 pixels to 30 mm, giving a fixed 30 px/mm scale;
+5. suppresses grid lines;
+6. isolates the medication contour near the origin;
+7. estimates Height and Width in mm;
+8. suggests Tablet, Capsule, or Soft Capsule based on geometry/appearance heuristics;
+9. pre-populates Height and Width and highlights the suggested Pill Type.
+
+All AI Capture values remain editable and require operator confirmation.
